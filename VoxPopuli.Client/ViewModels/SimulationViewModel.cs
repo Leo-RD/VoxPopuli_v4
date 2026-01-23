@@ -20,14 +20,14 @@ public partial class SimulationViewModel : BaseViewModel
         InitializePopulation(500);
     }
 
-
-    public void ResetSimulation()
+    [RelayCommand]
+    private void ResetSimulation()
     {
         InitializePopulation(500);
     }
 
-
-    public void TriggerEvent()
+    [RelayCommand]
+    private void TriggerEvent()
     {
         // Exemple simple : changer la couleur de tout le monde
         foreach (var agent in Population)
