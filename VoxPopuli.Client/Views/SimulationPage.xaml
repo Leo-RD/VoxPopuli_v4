@@ -3,21 +3,294 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
              x:Class="VoxPopuli.Client.Views.SimulationPage"
-             Title="Vox Populi 4.0 - Simulation">
+             Title="VoxPopuli 4.0"
+             BackgroundColor="#2C3E50">
 
-    <Grid RowDefinitions="*, Auto">
-        <skia:SKCanvasView x:Name="SimulationCanvas"
-                           Grid.Row="0"
-                           PaintSurface="OnCanvasPaintSurface"
-                           EnableTouchEvents="True" />
+    <Grid RowDefinitions="Auto, Auto, *">
 
-        <Border Grid.Row="1" Stroke="#CCCCCC" StrokeThickness="1" BackgroundColor="#F5F5F5" Padding="10">
-            <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
-                <Label Text="{Binding AgentCount, StringFormat='Population: {0}'}" VerticalOptions="Center" FontAttributes="Bold"/>
-                <Button Text="Réinitialiser" Command="{Binding ResetSimulationCommand}" />
-                <Button Text="Lancer Event A/B" Command="{Binding TriggerEventCommand}" BackgroundColor="#512BD4" TextColor="White"/>
-            </HorizontalStackLayout>
+        <!-- Header Section -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,10" Spacing="5">
+            <Label Text="VoxPopuli 4.0" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   TextColor="White" 
+                   HorizontalOptions="Center"/>
+            <Label Text="Simulateur d'Opinion Publique - Wireframes .NET MAUI" 
+                   FontSize="14" 
+                   TextColor="#BDC3C7" 
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Section Title -->
+        <Label Grid.Row="1" 
+               Text="Simulation - Vue 2D avec Agents" 
+               FontSize="20" 
+               FontAttributes="Bold" 
+               TextColor="White" 
+               Padding="20,10"
+               HorizontalOptions="Center"/>
+
+        <!-- Main Content Panel -->
+        <Border Grid.Row="2" 
+                Margin="20,10,20,20" 
+                BackgroundColor="White" 
+                StrokeThickness="0"
+                Padding="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8"/>
+            </Border.StrokeShape>
+
+            <Grid RowDefinitions="Auto, *">
+
+                <!-- Simulation Status Bar -->
+                <Border Grid.Row="0" 
+                        BackgroundColor="#F8F9FA" 
+                        Padding="15,10"
+                        StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8,8,0,0"/>
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                            <Label Text="▶" TextColor="#27AE60" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="Simulation en Cours" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#2C3E50"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <Border Grid.Column="2" 
+                                BackgroundColor="#27AE60" 
+                                Padding="8,4" 
+                                Margin="0,0,10,0"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="4"/>
+                            </Border.StrokeShape>
+                            <Label Text="RUNNING" TextColor="White" FontSize="12" FontAttributes="Bold"/>
+                        </Border>
+
+                        <Button Grid.Column="3" 
+                                Text="Arrêter" 
+                                BackgroundColor="#E74C3C" 
+                                TextColor="White"
+                                FontSize="14"
+                                Padding="15,8"/>
+                    </Grid>
+                </Border>
+
+                <!-- Main Content: Simulation + Controls -->
+                <Grid Grid.Row="1" ColumnDefinitions="2*, *" Padding="15">
+
+                    <!-- Left Column: Simulation View -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="10" Padding="0,0,10,0">
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" 
+                                   Text="Vue 2D - Espace de Simulation" 
+                                   FontSize="14" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#34495E"
+                                   VerticalOptions="Center"/>
+
+                            <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                <Button Text="Zoom +" FontSize="12" Padding="10,5" BackgroundColor="#ECF0F1" TextColor="#2C3E50"/>
+                                <Button Text="Zoom -" FontSize="12" Padding="10,5" BackgroundColor="#ECF0F1" TextColor="#2C3E50"/>
+                                <Button Text="Reset" FontSize="12" Padding="10,5" BackgroundColor="#ECF0F1" TextColor="#2C3E50" Command="{Binding ResetSimulationCommand}"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+
+                        <!-- Simulation Canvas -->
+                        <Border StrokeThickness="1" Stroke="#BDC3C7" BackgroundColor="#1C1C1C">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="4"/>
+                            </Border.StrokeShape>
+                            <Grid>
+                                <skia:SKCanvasView x:Name="SimulationCanvas"
+                                                   HeightRequest="400"
+                                                   PaintSurface="OnCanvasPaintSurface"
+                                                   EnableTouchEvents="True" />
+
+                                <!-- Legend Overlay -->
+                                <VerticalStackLayout Padding="10" 
+                                                     VerticalOptions="Start" 
+                                                     HorizontalOptions="Start"
+                                                     Spacing="4">
+                                    <HorizontalStackLayout Spacing="6">
+                                        <BoxView Color="#3498DB" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
+                                        <Label Text="Groupe A - Accord" TextColor="White" FontSize="11"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <BoxView Color="#E74C3C" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
+                                        <Label Text="Groupe A - Rejet" TextColor="White" FontSize="11"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <BoxView Color="#2ECC71" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
+                                        <Label Text="Groupe B - Accord" TextColor="White" FontSize="11"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <BoxView Color="#F39C12" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
+                                        <Label Text="Groupe B - Rejet" TextColor="White" FontSize="11"/>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Agent Count Badge -->
+                                <Border BackgroundColor="#2C3E50" 
+                                        Padding="12,6"
+                                        Margin="10"
+                                        StrokeThickness="0"
+                                        VerticalOptions="End" 
+                                        HorizontalOptions="End">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="4"/>
+                                    </Border.StrokeShape>
+                                    <Label TextColor="White" FontSize="16" FontAttributes="Bold">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding AgentCount}" FontSize="20"/>
+                                                <Span Text="&#10;agents actifs" FontSize="10"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Stats Footer -->
+                        <Grid ColumnDefinitions="*, *, *" Padding="10,5" BackgroundColor="#ECF0F1">
+                            <Label Grid.Column="0" Text="FPS: 60" FontSize="11" TextColor="#7F8C8D"/>
+                            <Label Grid.Column="1" Text="Temps écoulé: 00:45" FontSize="11" TextColor="#7F8C8D" HorizontalOptions="Center"/>
+                            <Label Grid.Column="2" Text="Inférences/sec: 120" FontSize="11" TextColor="#7F8C8D" HorizontalOptions="End"/>
+                        </Grid>
+
+                    </VerticalStackLayout>
+
+                    <!-- Right Column: Controls Panel -->
+                    <ScrollView Grid.Column="1">
+                        <VerticalStackLayout Spacing="15">
+
+                            <!-- Controls Section -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Contrôles" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#34495E"/>
+
+                                <Button Text="▶  Diffuser Message A" 
+                                        BackgroundColor="#3498DB" 
+                                        TextColor="White"
+                                        FontSize="14"
+                                        Command="{Binding TriggerEventCommand}"/>
+
+                                <Button Text="▶  Diffuser Message B" 
+                                        BackgroundColor="#9B59B6" 
+                                        TextColor="White"
+                                        FontSize="14"/>
+
+                                <Button Text="⚙  Paramètres" 
+                                        BackgroundColor="#4A5568" 
+                                        TextColor="White"
+                                        FontSize="14"/>
+                            </VerticalStackLayout>
+
+                            <!-- Real-Time Stats Section -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Stats Temps Réel" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#34495E"/>
+
+                                <!-- Groupe A Stats -->
+                                <Border Padding="12" 
+                                        BackgroundColor="#EBF5FB" 
+                                        StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="Groupe A" 
+                                               FontSize="13" 
+                                               FontAttributes="Bold" 
+                                               TextColor="#3498DB"/>
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <Label Grid.Column="0" Text="Accord:" FontSize="12" TextColor="#2C3E50"/>
+                                            <Label Grid.Column="1" Text="65%" FontSize="12" FontAttributes="Bold" TextColor="#2C3E50"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <Label Grid.Column="0" Text="Rejet:" FontSize="12" TextColor="#2C3E50"/>
+                                            <Label Grid.Column="1" Text="35%" FontSize="12" FontAttributes="Bold" TextColor="#2C3E50"/>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Groupe B Stats -->
+                                <Border Padding="12" 
+                                        BackgroundColor="#F4ECF7" 
+                                        StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="Groupe B" 
+                                               FontSize="13" 
+                                               FontAttributes="Bold" 
+                                               TextColor="#9B59B6"/>
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <Label Grid.Column="0" Text="Accord:" FontSize="12" TextColor="#2C3E50"/>
+                                            <Label Grid.Column="1" Text="42%" FontSize="12" FontAttributes="Bold" TextColor="#2C3E50"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <Label Grid.Column="0" Text="Rejet:" FontSize="12" TextColor="#2C3E50"/>
+                                            <Label Grid.Column="1" Text="58%" FontSize="12" FontAttributes="Bold" TextColor="#2C3E50"/>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Messages Section -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Messages" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#34495E"/>
+
+                                <Border Padding="10" 
+                                        BackgroundColor="#F8F9FA" 
+                                        StrokeThickness="1"
+                                        Stroke="#E9ECEF">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="4"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label TextColor="#3498DB" FontSize="11">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="A" FontAttributes="Bold"/>
+                                                    <Span Text="&#10;Message politique pour..."/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label TextColor="#9B59B6" FontSize="11">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="B" FontAttributes="Bold"/>
+                                                    <Span Text="&#10;Alternative message..."/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+                    </ScrollView>
+
+                </Grid>
+
+            </Grid>
         </Border>
+
     </Grid>
 
 </ContentPage>

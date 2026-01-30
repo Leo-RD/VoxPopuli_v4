@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="VIEWS">
+    <Position X="6.896" Y="4.49" Height="0.312" Width="0.7" />
+  </Comment>
+  <Comment CommentText="VIEWMODELS">
+    <Position X="6.208" Y="2.052" Height="0.291" Width="1.044" />
+  </Comment>
+  <Comment CommentText="MODELS">
+    <Position X="2.125" Y="2.729" Height="0.291" Width="0.7" />
+  </Comment>
+  <Class Name="VoxPopuli.Client.ViewModels.BaseViewModel">
+    <Position X="4.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\BaseViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.ViewModels.ConfigurationViewModel">
+    <Position X="5.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\ConfigurationViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.ViewModels.SimulationViewModel">
+    <Position X="7.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAIAAAAAAABAAAAIAAAAQAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\SimulationViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Views.SimulationPage">
+    <Position X="7.5" Y="4.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAQAAAAAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\SimulationPage.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Views.ConfigurationPage">
+    <Position X="5.25" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\ConfigurationPage.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Models.AgentModel">
+    <Position X="0.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAQAAAAIAAAAAAAAAAAIAAAAAAAAAAYAA=</HashCode>
+      <FileName>Models\AgentModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.MauiProgram">
+    <Position X="0.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MauiProgram.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="VoxPopuli.Client.Models.EmotionalState">
+    <Position X="2" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAQAAIQAAAAAAAAAABAA=</HashCode>
+      <FileName>Models\AgentModel.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
