@@ -2,21 +2,29 @@
 using CommunityToolkit.Mvvm.Input;
 using SkiaSharp;
 using VoxPopuli.Client.Models;
+using VoxPopuli.Client.Services;
 
 namespace VoxPopuli.Client.ViewModels;
 
 // CORRECTION 1 : Ajout du mot-clé 'partial' ici
+
 public partial class SimulationViewModel : BaseViewModel
 {
-    // Liste simple pour les performances (pas d'ObservableCollection pour 500 agents)
+    private readonly OnnxInferenceService _onnxService; // AJOUT
+
     public List<AgentModel> Population { get; private set; } = new();
 
-    // Le Toolkit va générer : public int AgentCount { get; set; }
     [ObservableProperty]
     private int agentCount;
 
-    public SimulationViewModel()
+    // Injection de dépendance
+    public SimulationViewModel(OnnxInferenceService onnxService)
     {
+        _onnxService = onnxService;
+
+        // Initialiser le modèle ONNX de manière asynchrone
+        Task.Run(async () => await _onnxService.InitializeAsync());
+
         InitializePopulation(500);
     }
 
@@ -27,38 +35,50 @@ public partial class SimulationViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void TriggerEvent()
+    private async Task RunInferenceAsync()
     {
-        // Exemple simple : changer la couleur de tout le monde
+        // Exemple : Exécuter l'inférence sur tous les agents
         foreach (var agent in Population)
         {
-            agent.CurrentEmotion = EmotionalState.Agitated;
-            agent.RenderColor = SKColors.Red;
+            var prediction = _onnxService.Predict(agent.OpinionVector);
+
+            // Mettre à jour l'agent selon la prédiction
+            // Exemple : interpréter le résultat comme une nouvelle opinion
+            agent.OpinionVector = prediction;
+
+            // Mettre à jour la couleur en fonction du résultat
+            agent.RenderColor = GetColorFromOpinion(prediction[0]);
         }
-        // Force le rafraîchissement si nécessaire (souvent géré par la boucle de jeu)
+    }
+
+    private SKColor GetColorFromOpinion(float opinionScore)
+    {
+        // Exemple : vert pour positif, rouge pour négatif
+        if (opinionScore > 0.6f) return SKColors.Green;
+        if (opinionScore < 0.4f) return SKColors.Red;
+        return SKColors.Gray;
     }
 
     private void InitializePopulation(int count)
     {
         var random = new Random();
-
-        // On vide et on recrée
         Population.Clear();
-
-        // Mise à jour de la propriété générée (nécessite 'partial' sur la classe)
         AgentCount = count;
 
         for (int i = 0; i < count; i++)
         {
             Population.Add(new AgentModel
             {
-                // Position aléatoire (0 à 1000)
                 X = random.Next(0, 1000),
                 Y = random.Next(0, 1000),
-
-                // CORRECTION 2 : Assignation d'un tableau float
-                OpinionVector = new float[] { (float)random.NextDouble() },
-
+                OpinionVector = new float[5] // 5 dimensions selon votre modèle
+                {
+                    (float)random.NextDouble(),
+                    (float)random.NextDouble(),
+                    (float)random.NextDouble(),
+                    (float)random.NextDouble(),
+                    (float)random.NextDouble()
+                },
                 CurrentEmotion = EmotionalState.Neutral,
                 RenderColor = SKColors.BlueViolet
             });

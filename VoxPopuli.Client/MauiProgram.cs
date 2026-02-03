@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VoxPopuli.Client.Views;
 using VoxPopuli.Client.ViewModels;
+using VoxPopuli.Client.Services;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace VoxPopuli.Client;
@@ -24,6 +25,7 @@ public static class MauiProgram
 
         // --- Enregistrement des Services (Phase 3) ---
         // builder.Services.AddSingleton<IAgentService, AgentService>();
+        builder.Services.AddSingleton<OnnxInferenceService>();  // AJOUT ICI
         
 
         // --- Enregistrement des ViewModels ---
