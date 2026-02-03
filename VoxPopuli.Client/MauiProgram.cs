@@ -24,6 +24,7 @@ public static class MauiProgram
 
         // --- Enregistrement des Services (Phase 3) ---
         // builder.Services.AddSingleton<IAgentService, AgentService>();
+        
 
         // --- Enregistrement des ViewModels ---
         // Singleton pour la simulation : on veut garder l'état des agents si on change de page
