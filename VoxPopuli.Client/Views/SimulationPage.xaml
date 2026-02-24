@@ -183,15 +183,60 @@
                                         FontSize="14"
                                         Command="{Binding TriggerEventCommand}"/>
 
+                                <!-- 2. Bouton Diffuser Message B (ligne ~93) -->
                                 <Button Text="▶  Diffuser Message B" 
                                         BackgroundColor="#9B59B6" 
                                         TextColor="White"
-                                        FontSize="14"/>
+                                        FontSize="14"
+                                        Command="{Binding BroadcastMessageBCommand}"/>
 
                                 <Button Text="⚙  Paramètres" 
                                         BackgroundColor="#4A5568" 
                                         TextColor="White"
                                         FontSize="14"/>
+                                <!-- AJOUTEZ CE BOUTON dans la section des contrôles -->
+                                <Button Text="🧠 Exécuter Inférence IA" 
+                                        BackgroundColor="#9B59B6" 
+                                        TextColor="White"
+                                        FontSize="14"
+                                        Padding="15,10"
+                                        Command="{Binding RunInferenceCommand}"
+                                        Margin="0,10,0,0"/>
+
+                                <!-- Actions Rapides Section -->
+                                <Border BackgroundColor="#F8F9FA" Padding="15" StrokeThickness="1" Stroke="#E0E0E0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="10">
+                                        <Label Text="⚡ Actions Rapides" 
+                                           FontSize="14" 
+                                           FontAttributes="Bold" 
+                                           TextColor="#2C3E50"/>
+
+                                                                    <!-- AJOUTEZ ICI -->
+                                                                    <Button Text="🧠 Exécuter Inférence ONNX" 
+                                            BackgroundColor="#9B59B6" 
+                                            TextColor="White"
+                                            FontSize="13"
+                                            Command="{Binding RunInferenceCommand}"/>
+
+                                        <!-- 3. Bouton Déclencher Événement dans Actions Rapides (ligne ~119) -->
+                                        <Button Text="📢 Déclencher Événement" 
+                                            BackgroundColor="#F39C12" 
+                                            TextColor="White"
+                                            FontSize="13"
+                                            Command="{Binding TriggerEventCommand}"/>           
+
+                                        <Button Text="🔄 Réinitialiser Simulation" 
+                                            BackgroundColor="#95A5A6" 
+                                            TextColor="White"
+                                            FontSize="13"
+                                            Command="{Binding ResetSimulationCommand}"/>
+                                    </VerticalStackLayout>
+                                </Border>
+
+
                             </VerticalStackLayout>
 
                             <!-- Real-Time Stats Section -->
