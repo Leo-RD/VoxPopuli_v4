@@ -25,10 +25,11 @@ public partial class SimulationPage : ContentPage
         // 16ms ~= 60 FPS
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(16), () =>
         {
+            // PHASE 2 : Mise à jour de la logique de simulation (Random Walk)
+            _viewModel.UpdateSimulationLogic();
+
             // Demande le redessin du canvas
             SimulationCanvas.InvalidateSurface();
-
-            // Phase 2 : On appellera ici _viewModel.UpdateSimulationLogic();
 
             return true; // Continuer le timer
         });

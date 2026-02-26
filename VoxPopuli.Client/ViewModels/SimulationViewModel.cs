@@ -10,6 +10,12 @@ namespace VoxPopuli.Client.ViewModels;
 public partial class SimulationViewModel : BaseViewModel
 {
     private readonly OnnxInferenceService _onnxService;
+    private readonly Random _random = new Random();
+
+    // Constantes pour la simulation
+    private const float WorldWidth = 1000f;
+    private const float WorldHeight = 1000f;
+    private const float DirectionChangeChance = 0.05f; // 5% de chance de changer de direction par frame
 
     public List<AgentModel> Population { get; private set; } = new();
 
@@ -126,6 +132,102 @@ public partial class SimulationViewModel : BaseViewModel
         return SKColors.Orange;
     }
 
+    // ========== MOTEUR DE DÉPLACEMENT (RANDOM WALK) ==========
+
+    /// <summary>
+    /// Met à jour la logique de simulation (appelé chaque frame).
+    /// Implémente le Random Walk pour chaque agent.
+    /// </summary>
+    public void UpdateSimulationLogic()
+    {
+        if (!IsRunning) return;
+
+        // Parcourir tous les agents pour mettre à jour leur position
+        for (int i = 0; i < Population.Count; i++)
+        {
+            var agent = Population[i];
+            UpdateAgentMovement(agent);
+        }
+    }
+
+    /// <summary>
+    /// Met à jour le mouvement d'un agent selon le Random Walk.
+    /// </summary>
+    private void UpdateAgentMovement(AgentModel agent)
+    {
+        // 1. Changement aléatoire de direction (Random Walk)
+        if (_random.NextDouble() < DirectionChangeChance)
+        {
+            // Nouvelle direction aléatoire (en radians)
+            agent.Direction = (float)(_random.NextDouble() * Math.PI * 2);
+        }
+
+        // 2. Calculer le facteur de vitesse selon l'émotion
+        float speedMultiplier = agent.CurrentEmotion switch
+        {
+            EmotionalState.Agitated => 2.5f,  // Très rapide
+            EmotionalState.Fearful => 3.0f,   // Fuite rapide
+            EmotionalState.Happy => 1.2f,     // Légèrement plus rapide
+            EmotionalState.Angry => 1.8f,     // Rapide
+            EmotionalState.Neutral => 1.0f,   // Vitesse normale
+            _ => 1.0f
+        };
+
+        // 3. Calculer la nouvelle vitesse basée sur la direction
+        float baseSpeed = agent.MaxSpeed * speedMultiplier;
+        agent.VelocityX = (float)Math.Cos(agent.Direction) * baseSpeed;
+        agent.VelocityY = (float)Math.Sin(agent.Direction) * baseSpeed;
+
+        // 4. Mettre à jour la position
+        agent.X += agent.VelocityX;
+        agent.Y += agent.VelocityY;
+
+        // 5. Gestion des rebonds sur les bords
+        HandleBoundaryCollision(agent);
+    }
+
+    /// <summary>
+    /// Gère les collisions avec les bords de la carte (rebonds).
+    /// </summary>
+    private void HandleBoundaryCollision(AgentModel agent)
+    {
+        bool hasCollided = false;
+
+        // Rebond sur le bord gauche ou droit
+        if (agent.X < 0)
+        {
+            agent.X = 0;
+            agent.VelocityX = -agent.VelocityX; // Inversion de la direction horizontale
+            hasCollided = true;
+        }
+        else if (agent.X > WorldWidth)
+        {
+            agent.X = WorldWidth;
+            agent.VelocityX = -agent.VelocityX;
+            hasCollided = true;
+        }
+
+        // Rebond sur le bord haut ou bas
+        if (agent.Y < 0)
+        {
+            agent.Y = 0;
+            agent.VelocityY = -agent.VelocityY; // Inversion de la direction verticale
+            hasCollided = true;
+        }
+        else if (agent.Y > WorldHeight)
+        {
+            agent.Y = WorldHeight;
+            agent.VelocityY = -agent.VelocityY;
+            hasCollided = true;
+        }
+
+        // Recalculer la direction après un rebond
+        if (hasCollided)
+        {
+            agent.Direction = (float)Math.Atan2(agent.VelocityY, agent.VelocityX);
+        }
+    }
+
     private void InitializePopulation(int count)
     {
         var random = new Random();
@@ -134,6 +236,9 @@ public partial class SimulationViewModel : BaseViewModel
 
         for (int i = 0; i < count; i++)
         {
+            // Direction initiale aléatoire
+            float initialDirection = (float)(random.NextDouble() * Math.PI * 2);
+
             Population.Add(new AgentModel
             {
                 X = random.Next(0, 1000),
@@ -147,7 +252,10 @@ public partial class SimulationViewModel : BaseViewModel
                     (float)random.NextDouble()
                 },
                 CurrentEmotion = EmotionalState.Neutral,
-                RenderColor = SKColors.BlueViolet
+                RenderColor = SKColors.BlueViolet,
+                Direction = initialDirection,
+                MaxSpeed = 1.5f + (float)random.NextDouble() * 1.0f, // Vitesse variable entre 1.5 et 2.5
+                Group = i < count / 2 ? "A" : "B" // Répartition 50/50 entre groupes A et B
             });
         }
     }
