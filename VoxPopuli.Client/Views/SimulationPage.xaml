@@ -72,11 +72,12 @@
                         </Border>
 
                         <Button Grid.Column="3" 
-                                Text="Arrêter" 
-                                BackgroundColor="#E74C3C" 
+                                Text="{Binding SimulationButtonText}" 
+                                BackgroundColor="{Binding SimulationButtonColor}" 
                                 TextColor="White"
                                 FontSize="14"
-                                Padding="15,8"/>
+                                Padding="15,8"
+                                Command="{Binding ToggleSimulationCommand}"/>
                     </Grid>
                 </Border>
 

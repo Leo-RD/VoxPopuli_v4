@@ -17,6 +17,14 @@ public partial class SimulationViewModel : BaseViewModel
     private const float WorldHeight = 1000f;
     private const float DirectionChangeChance = 0.05f; // 5% de chance de changer de direction par frame
 
+    // Tracking du FPS
+    private DateTime _lastFrameTime = DateTime.Now;
+    private int _frameCount = 0;
+    private double _accumulatedTime = 0;
+
+    [ObservableProperty]
+    private int currentFps = 60;
+
     public List<AgentModel> Population { get; private set; } = new();
 
     [ObservableProperty]
@@ -24,6 +32,12 @@ public partial class SimulationViewModel : BaseViewModel
 
     [ObservableProperty]
     private bool isRunning = true; // État de la simulation
+
+    [ObservableProperty]
+    private string simulationButtonText = "⏸ Arrêter";
+
+    [ObservableProperty]
+    private Color simulationButtonColor = Color.FromArgb("#E74C3C");
 
     public SimulationViewModel(OnnxInferenceService onnxService)
     {
@@ -77,7 +91,20 @@ public partial class SimulationViewModel : BaseViewModel
     private void ToggleSimulation()
     {
         IsRunning = !IsRunning;
-        // Vous pouvez ajouter une logique pour pause/resume
+
+        // Mise à jour du texte et de la couleur du bouton
+        if (IsRunning)
+        {
+            SimulationButtonText = "⏸ Arrêter";
+            SimulationButtonColor = Color.FromArgb("#E74C3C"); // Rouge
+        }
+        else
+        {
+            SimulationButtonText = "▶ Reprendre";
+            SimulationButtonColor = Color.FromArgb("#27AE60"); // Vert
+        }
+
+        System.Diagnostics.Debug.WriteLine($"🎮 Simulation: {(IsRunning ? "RUNNING" : "PAUSED")}");
     }
 
     /// <summary>
@@ -142,6 +169,22 @@ public partial class SimulationViewModel : BaseViewModel
     {
         if (!IsRunning) return;
 
+        // Calcul du FPS
+        var currentTime = DateTime.Now;
+        var deltaTime = (currentTime - _lastFrameTime).TotalSeconds;
+        _lastFrameTime = currentTime;
+
+        _frameCount++;
+        _accumulatedTime += deltaTime;
+
+        // Mise à jour du FPS toutes les 30 frames (pour éviter les fluctuations)
+        if (_frameCount >= 30)
+        {
+            CurrentFps = (int)Math.Round(_frameCount / _accumulatedTime);
+            _frameCount = 0;
+            _accumulatedTime = 0;
+        }
+
         // Parcourir tous les agents pour mettre à jour leur position
         for (int i = 0; i < Population.Count; i++)
         {
@@ -175,8 +218,10 @@ public partial class SimulationViewModel : BaseViewModel
 
         // 3. Calculer la nouvelle vitesse basée sur la direction
         float baseSpeed = agent.MaxSpeed * speedMultiplier;
-        agent.VelocityX = (float)Math.Cos(agent.Direction) * baseSpeed;
-        agent.VelocityY = (float)Math.Sin(agent.Direction) * baseSpeed;
+
+        // Optimisation : Utiliser MathF pour de meilleures performances
+        agent.VelocityX = MathF.Cos(agent.Direction) * baseSpeed;
+        agent.VelocityY = MathF.Sin(agent.Direction) * baseSpeed;
 
         // 4. Mettre à jour la position
         agent.X += agent.VelocityX;
@@ -224,7 +269,7 @@ public partial class SimulationViewModel : BaseViewModel
         // Recalculer la direction après un rebond
         if (hasCollided)
         {
-            agent.Direction = (float)Math.Atan2(agent.VelocityY, agent.VelocityX);
+            agent.Direction = MathF.Atan2(agent.VelocityY, agent.VelocityX);
         }
     }
 
