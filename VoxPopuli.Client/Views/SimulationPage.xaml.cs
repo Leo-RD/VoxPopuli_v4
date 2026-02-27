@@ -42,8 +42,8 @@ public partial class SimulationPage : ContentPage
 
     private void StartRenderLoop()
     {
-        // Timer optimisé pour viser 60 FPS (16.67ms par frame)
-        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(16.67), () =>
+        // Timer optimisé pour viser 30 FPS (33.33ms par frame)
+        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(33.33), () =>
         {
             // Mise à jour de la logique de simulation (Random Walk)
             _viewModel.UpdateSimulationLogic();
