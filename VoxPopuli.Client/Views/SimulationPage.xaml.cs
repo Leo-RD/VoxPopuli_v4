@@ -35,15 +35,35 @@ public partial class SimulationPage : ContentPage
         _viewModel = viewModel;
         BindingContext = _viewModel;
 
+        // Initialiser le slider avec la valeur actuelle
+        AgentCountSlider.Value = _viewModel.AgentCount;
+
         // Démarrage de la boucle de rendu (Game Loop) optimisée pour 60 FPS
         // Utilisation d'un timer plus précis
         StartRenderLoop();
     }
 
+    private void OnAgentCountChanged(object sender, ValueChangedEventArgs e)
+    {
+        // Arrondir à la dizaine la plus proche pour éviter des mises à jour trop fréquentes
+        int newCount = (int)Math.Round(e.NewValue / 10) * 10;
+
+        if (newCount != _viewModel.AgentCount && newCount >= 100)
+        {
+            // Appeler directement InitializePopulation via une méthode publique
+            System.Diagnostics.Debug.WriteLine($"👥 Changement du nombre d'agents: {_viewModel.AgentCount} → {newCount}");
+
+            // Boxing explicite de l'int en object
+            object parameter = newCount;
+            _viewModel.ResetSimulationCommand.Execute(parameter);
+        }
+    }
+
     private void StartRenderLoop()
     {
-        // Timer optimisé pour viser 30 FPS (33.33ms par frame)
-        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(33.33), () =>
+        // Timer configuré pour cibler 30 FPS
+        // Utilisation de 30ms au lieu de 33.33ms pour compenser l'overhead du timer
+        Dispatcher.StartTimer(TimeSpan.FromMilliseconds(30), () =>
         {
             // Mise à jour de la logique de simulation (Random Walk)
             _viewModel.UpdateSimulationLogic();
@@ -64,13 +84,14 @@ public partial class SimulationPage : ContentPage
         // 1. Effacer l'écran (Fond blanc)
         canvas.Clear(SKColors.White);
 
-        // 2. Calculer le facteur d'échelle
-        // Supposons un monde virtuel de 1000x1000
-        float scaleX = info.Width / 1000f;
-        float scaleY = info.Height / 1000f;
+        // 2. Calculer le facteur d'échelle avec zoom
+        // Le monde virtuel fait 1000x1000, on scale pour remplir tout le canvas
+        float baseScaleX = info.Width / 1000f;
+        float baseScaleY = info.Height / 1000f;
 
-        // Garder le ratio d'aspect pour ne pas déformer les agents
-        float scale = Math.Min(scaleX, scaleY);
+        // Appliquer le zoom
+        float scaleX = baseScaleX * _viewModel.ZoomLevel;
+        float scaleY = baseScaleY * _viewModel.ZoomLevel;
 
         // 3. Dessiner les agents
         // Accès direct à la liste (pas de LINQ pour la perf)
@@ -84,11 +105,11 @@ public partial class SimulationPage : ContentPage
             // Mise à jour de la couleur depuis le modèle (pré-calculée)
             _agentPaint.Color = agent.RenderColor;
 
-            // Dessin du cercle (Agent)
+            // Dessin du cercle (Agent) avec scaling indépendant X/Y pour remplir le canvas
             canvas.DrawCircle(
-                agent.X * scale,  // Projection X
-                agent.Y * scale,  // Projection Y
-                5 * scale,        // Rayon ajusté à l'échelle
+                agent.X * scaleX,  // Projection X avec scale X et zoom
+                agent.Y * scaleY,  // Projection Y avec scale Y et zoom
+                4 * _viewModel.ZoomLevel, // Rayon adapté au zoom
                 _agentPaint
             );
         }
@@ -122,11 +143,12 @@ public partial class SimulationPage : ContentPage
         canvas.DrawText(fpsText, rectX + 10, rectY + 22, _fpsPaint);
 
         // Indicateur de couleur selon les performances (à gauche du badge)
+        // Seuils adaptés pour 30 FPS cible
         SKColor indicatorColor = _viewModel.CurrentFps switch
         {
-            >= 55 => SKColors.LimeGreen,  // Excellent (>= 55 FPS)
-            >= 45 => SKColors.Orange,      // Moyen (45-54 FPS)
-            _ => SKColors.Red              // Mauvais (< 45 FPS)
+            >= 28 => SKColors.LimeGreen,  // Excellent (>= 28 FPS, proche de 30)
+            >= 22 => SKColors.Orange,      // Moyen (22-27 FPS)
+            _ => SKColors.Red              // Mauvais (< 22 FPS)
         };
 
         var indicatorPaint = new SKPaint { Color = indicatorColor, Style = SKPaintStyle.Fill };

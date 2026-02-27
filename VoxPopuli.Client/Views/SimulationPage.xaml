@@ -96,9 +96,24 @@
                                    VerticalOptions="Center"/>
 
                             <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                                <Button Text="Zoom +" FontSize="12" Padding="10,5" BackgroundColor="#ECF0F1" TextColor="#2C3E50"/>
-                                <Button Text="Zoom -" FontSize="12" Padding="10,5" BackgroundColor="#ECF0F1" TextColor="#2C3E50"/>
-                                <Button Text="Reset" FontSize="12" Padding="10,5" BackgroundColor="#ECF0F1" TextColor="#2C3E50" Command="{Binding ResetSimulationCommand}"/>
+                                <Button Text="Zoom +" 
+                                        FontSize="12" 
+                                        Padding="10,5" 
+                                        BackgroundColor="#ECF0F1" 
+                                        TextColor="#2C3E50"
+                                        Command="{Binding ZoomInCommand}"/>
+                                <Button Text="Zoom -" 
+                                        FontSize="12" 
+                                        Padding="10,5" 
+                                        BackgroundColor="#ECF0F1" 
+                                        TextColor="#2C3E50"
+                                        Command="{Binding ZoomOutCommand}"/>
+                                <Button Text="Reset" 
+                                        FontSize="12" 
+                                        Padding="10,5" 
+                                        BackgroundColor="#ECF0F1" 
+                                        TextColor="#2C3E50" 
+                                        Command="{Binding ResetZoomCommand}"/>
                             </HorizontalStackLayout>
                         </Grid>
 
@@ -120,19 +135,19 @@
                                                      Spacing="4">
                                     <HorizontalStackLayout Spacing="6">
                                         <BoxView Color="#3498DB" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe A - Accord" TextColor="White" FontSize="11"/>
+                                        <Label Text="Groupe A - Accord" TextColor="#2C3E50" FontSize="11" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout Spacing="6">
                                         <BoxView Color="#E74C3C" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe A - Rejet" TextColor="White" FontSize="11"/>
+                                        <Label Text="Groupe A - Rejet" TextColor="#2C3E50" FontSize="11" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout Spacing="6">
                                         <BoxView Color="#2ECC71" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe B - Accord" TextColor="White" FontSize="11"/>
+                                        <Label Text="Groupe B - Accord" TextColor="#2C3E50" FontSize="11" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout Spacing="6">
                                         <BoxView Color="#F39C12" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe B - Rejet" TextColor="White" FontSize="11"/>
+                                        <Label Text="Groupe B - Rejet" TextColor="#2C3E50" FontSize="11" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                 </VerticalStackLayout>
 
@@ -178,7 +193,34 @@
                                        FontAttributes="Bold" 
                                        TextColor="#34495E"/>
 
-                                <Button Text="▶  Diffuser Message A" 
+                                <!-- Contrôle du nombre d'agents -->
+                                <Border BackgroundColor="#F8F9FA" Padding="10" StrokeThickness="1" Stroke="#E0E0E0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="5">
+                                        <Label Text="👥 Nombre d'agents" 
+                                               FontSize="13" 
+                                               FontAttributes="Bold" 
+                                               TextColor="#2C3E50"/>
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Slider x:Name="AgentCountSlider"
+                                                    Minimum="100" 
+                                                    Maximum="1000" 
+                                                    Value="{Binding AgentCount, Mode=TwoWay}"
+                                                    HorizontalOptions="FillAndExpand"
+                                                    ValueChanged="OnAgentCountChanged"/>
+                                            <Label Text="{Binding AgentCount}" 
+                                                   FontSize="16" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="#3498DB"
+                                                   WidthRequest="50"
+                                                   HorizontalTextAlignment="End"/>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Button Text="▶  Diffuser Message A"
                                         BackgroundColor="#3498DB" 
                                         TextColor="White"
                                         FontSize="14"

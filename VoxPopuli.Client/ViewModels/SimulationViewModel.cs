@@ -39,22 +39,62 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private Color simulationButtonColor = Color.FromArgb("#E74C3C");
 
+    [ObservableProperty]
+    private float zoomLevel = 1.0f; // Niveau de zoom (1.0 = 100%)
+
     public SimulationViewModel(OnnxInferenceService onnxService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
         _onnxService = onnxService;
         Task.Run(async () => await _onnxService.InitializeAsync());
-        InitializePopulation(500);
+        InitializePopulation(500); // Réduit à 400 pour plus de stabilité à 30 FPS ; si changement ici changer ligne 57
         System.Diagnostics.Debug.WriteLine($"📊 SimulationViewModel: {Population.Count} agents créés");
     }
 
     /// <summary>
-    /// Réinitialise la simulation avec 500 agents
+    /// Réinitialise la simulation avec un nombre spécifié d'agents
     /// </summary>
     [RelayCommand]
-    private void ResetSimulation()
+    private void ResetSimulation(object parameter = null)
     {
-        InitializePopulation(500);
+        int count = 500; // Par défaut
+
+        if (parameter is int paramCount)
+        {
+            count = paramCount;
+        }
+
+        InitializePopulation(count);
+    }
+
+    /// <summary>
+    /// Augmente le niveau de zoom
+    /// </summary>
+    [RelayCommand]
+    private void ZoomIn()
+    {
+        ZoomLevel = Math.Min(ZoomLevel + 0.1f, 3.0f); // Max 300%
+        System.Diagnostics.Debug.WriteLine($"🔍 Zoom In: {ZoomLevel:P0}");
+    }
+
+    /// <summary>
+    /// Diminue le niveau de zoom
+    /// </summary>
+    [RelayCommand]
+    private void ZoomOut()
+    {
+        ZoomLevel = Math.Max(ZoomLevel - 0.1f, 0.5f); // Min 50%
+        System.Diagnostics.Debug.WriteLine($"🔍 Zoom Out: {ZoomLevel:P0}");
+    }
+
+    /// <summary>
+    /// Réinitialise le zoom à 100%
+    /// </summary>
+    [RelayCommand]
+    private void ResetZoom()
+    {
+        ZoomLevel = 1.0f;
+        System.Diagnostics.Debug.WriteLine($"🔍 Zoom Reset: 100%");
     }
 
     /// <summary>
