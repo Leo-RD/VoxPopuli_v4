@@ -1,0 +1,108 @@
+```xaml
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Style TargetType="ActivityIndicator">
+        <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+    </Style>
+
+    <Style TargetType="IndicatorView">
+        <Setter Property="IndicatorColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"/>
+        <Setter Property="SelectedIndicatorColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray100}}"/>
+    </Style>
+
+    <Style TargetType="Border">
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="StrokeShape" Value="Rectangle"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+    </Style>
+
+    <Style TargetType="BoxView">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+        <Setter Property="MinimumHeightRequest" Value="44"/>
+        <Setter Property="MinimumWidthRequest" Value="44"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    // ...existing code...
+
+    <Style TargetType="Label" x:Key="Headline">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SubHeadline">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    // ...existing code...
+
+    <!-- Styles globaux pour ITC Avant Garde Gothic -->
+    <Style x:Key="BaseAvantGardeStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="AvantGardeBook" />
+    </Style>
+
+    <Style x:Key="AvantGardeTitle" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeBold" />
+        <Setter Property="FontSize" Value="28" />
+    </Style>
+
+    <Style x:Key="AvantGardeHeading" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeDemi" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
+    <Style x:Key="AvantGardeBody" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeBook" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="AvantGardeBodyBold" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeDemi" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!-- Mise à jour du style Label par défaut pour utiliser Avant Garde -->
+    <Style TargetType="Label" ApplyToDerivedTypes="True">
+        <Setter Property="FontFamily" Value="AvantGardeBook" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!-- Mise à jour du style Button par défaut pour utiliser Avant Garde -->
+    <Style TargetType="Button" ApplyToDerivedTypes="True">
+        <Setter Property="FontFamily" Value="AvantGardeDemi" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="14,10"/>
+    </Style>
+
+    // ...existing code...
+
+</ResourceDictionary>
+```

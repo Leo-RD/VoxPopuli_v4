@@ -25,7 +25,7 @@
     <Style TargetType="Button">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
-        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontFamily" Value="AvantGardeDemi"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="CornerRadius" Value="8"/>
@@ -156,7 +156,7 @@
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="AvantGardeBook" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
@@ -430,5 +430,44 @@
         <Setter Property="UnselectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
+
+    <!-- Styles globaux pour ITC Avant Garde Gothic -->
+    <Style x:Key="BaseAvantGardeStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="AvantGardeBook" />
+    </Style>
+
+    <Style x:Key="AvantGardeTitle" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeBold" />
+        <Setter Property="FontSize" Value="28" />
+    </Style>
+
+    <Style x:Key="AvantGardeHeading" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeDemi" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
+    <Style x:Key="AvantGardeBody" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeBook" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="AvantGardeBodyBold" TargetType="Label" BasedOn="{StaticResource BaseAvantGardeStyle}">
+        <Setter Property="FontFamily" Value="AvantGardeDemi" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+    <!-- Symboles Material Design (en unicode jusqu'à l'ajout de la police d'icônes) -->
+    <x:String x:Key="IconPlayArrow">▶</x:String>
+    <x:String x:Key="IconPause">⏸</x:String>
+    <x:String x:Key="IconSettings">⚙</x:String>
+    <x:String x:Key="IconPeople">👥</x:String>
+    <x:String x:Key="IconBolt">⚡</x:String>
+    <x:String x:Key="IconWarning">⚠</x:String>
+    <x:String x:Key="IconRocket">🚀</x:String>
+    <x:String x:Key="IconBrain">🧠</x:String>
+    <x:String x:Key="IconBroadcast">📢</x:String>
+    <x:String x:Key="IconRefresh">🔄</x:String>
+    <x:String x:Key="IconZoomIn">+</x:String>
+    <x:String x:Key="IconZoomOut">-</x:String>
+    <x:String x:Key="IconZoomReset">↺</x:String>
 
 </ResourceDictionary>

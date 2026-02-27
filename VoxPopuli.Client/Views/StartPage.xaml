@@ -20,11 +20,12 @@
                              HorizontalOptions="Center"
                              Margin="0,40,0,0">
             <Label Text="VoxPopuli 4.0" 
+                   FontFamily="AvantGardeBold"
                    FontSize="48" 
-                   FontAttributes="Bold" 
                    TextColor="White" 
                    HorizontalOptions="Center"/>
             <Label Text="Simulateur d'Opinion Publique" 
+                   FontFamily="AvantGardeBook"
                    FontSize="20" 
                    TextColor="#BDC3C7" 
                    HorizontalOptions="Center"/>
@@ -46,18 +47,30 @@
             <VerticalStackLayout Spacing="30">
                 
                 <!-- Title -->
-                <Label Text="⚙️ Configuration de la simulation" 
-                       FontSize="24" 
-                       FontAttributes="Bold" 
+                <Label FontSize="24" 
+                       FontFamily="AvantGardeDemi"
                        TextColor="#2C3E50"
-                       HorizontalOptions="Center"/>
+                       HorizontalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="⚙ " FontSize="24"/>
+                            <Span Text="Configuration de la simulation" FontFamily="AvantGardeDemi"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
 
                 <!-- Agent Count Section -->
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="👥 Nombre d'agents" 
-                           FontSize="18" 
-                           FontAttributes="Bold" 
-                           TextColor="#34495E"/>
+                    <Label FontSize="18" 
+                           FontFamily="AvantGardeDemi"
+                           TextColor="#34495E">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="👤 " FontSize="18"/>
+                                <Span Text="Nombre d'agents" FontFamily="AvantGardeDemi"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     
                     <Label Text="{Binding AgentCountDisplay}" 
                            FontSize="32" 
@@ -82,10 +95,16 @@
 
                 <!-- Quick Presets -->
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="⚡ Préréglages rapides" 
-                           FontSize="14" 
-                           FontAttributes="Bold" 
-                           TextColor="#34495E"/>
+                    <Label FontSize="14" 
+                           FontFamily="AvantGardeDemi"
+                           TextColor="#34495E">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="⚡ " FontSize="14"/>
+                                <Span Text="Préréglages rapides" FontFamily="AvantGardeDemi"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     
                     <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
                         <Button Grid.Column="0" 
@@ -116,8 +135,9 @@
                         <RoundRectangle CornerRadius="6"/>
                     </Border.StrokeShape>
                     <HorizontalStackLayout Spacing="10">
-                        <Label Text="⚠️" FontSize="20" VerticalOptions="Center"/>
+                        <Label Text="⚠" FontSize="20" VerticalOptions="Center"/>
                         <Label Text="Attention : Un grand nombre d'agents peut ralentir la simulation" 
+                               FontFamily="AvantGardeBook"
                                FontSize="12" 
                                TextColor="#856404"
                                VerticalOptions="Center"
@@ -127,11 +147,11 @@
                 </Border>
 
                 <!-- Start Button -->
-                <Button Text="🚀 Démarrer la simulation" 
+                <Button Text="▶ Démarrer la simulation" 
                         BackgroundColor="#27AE60" 
                         TextColor="White"
+                        FontFamily="AvantGardeDemi"
                         FontSize="18"
-                        FontAttributes="Bold"
                         Padding="20,15"
                         Margin="0,20,0,0"
                         Command="{Binding StartSimulationCommand}"/>

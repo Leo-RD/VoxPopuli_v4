@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- 
+        Codes Unicode pour les icônes Material Design
+        
+        Pour utiliser Material Symbols (police d'icônes), téléchargez d'abord la police :
+        1. Exécutez : .\download-material-symbols.ps1
+        2. Enregistrez la police dans MauiProgram.cs : fonts.AddFont("MaterialSymbolsOutlined.ttf", "MaterialIcons");
+        3. Utilisez : <Label Text="{StaticResource IconPlay}" FontFamily="MaterialIcons" />
+        
+        Sans Material Symbols, les symboles Unicode génériques sont utilisés (actuels).
+    -->
+
+    <!-- Navigation & Actions -->
+    <x:String x:Key="IconPlayArrow">▶</x:String>          <!-- Material: &#xe037; -->
+    <x:String x:Key="IconPause">⏸</x:String>              <!-- Material: &#xe034; -->
+    <x:String x:Key="IconStop">⏹</x:String>               <!-- Material: &#xe047; -->
+    <x:String x:Key="IconRefresh">↺</x:String>            <!-- Material: &#xe5d5; -->
+    <x:String x:Key="IconClose">✕</x:String>              <!-- Material: &#xe5cd; -->
+    
+    <!-- Interface -->
+    <x:String x:Key="IconSettings">⚙</x:String>           <!-- Material: &#xe8b8; -->
+    <x:String x:Key="IconMenu">☰</x:String>               <!-- Material: &#xe5d2; -->
+    <x:String x:Key="IconHome">⌂</x:String>               <!-- Material: &#xe88a; -->
+    <x:String x:Key="IconInfo">ⓘ</x:String>               <!-- Material: &#xe88e; -->
+    <x:String x:Key="IconHelp">?</x:String>               <!-- Material: &#xe887; -->
+    
+    <!-- Zoom & View -->
+    <x:String x:Key="IconZoomIn">+</x:String>             <!-- Material: &#xe8ff; -->
+    <x:String x:Key="IconZoomOut">−</x:String>            <!-- Material: &#xe900; -->
+    <x:String x:Key="IconZoomReset">↺</x:String>          <!-- Material: &#xe5d5; -->
+    <x:String x:Key="IconFullscreen">⛶</x:String>         <!-- Material: &#xe5d0; -->
+    
+    <!-- Content & Data -->
+    <x:String x:Key="IconPeople">👤</x:String>            <!-- Material: &#xe7fd; -->
+    <x:String x:Key="IconGroup">👥</x:String>             <!-- Material: &#xe7ef; -->
+    <x:String x:Key="IconPerson">👤</x:String>            <!-- Material: &#xe7fd; -->
+    <x:String x:Key="IconAccount">⚲</x:String>            <!-- Material: &#xe853; -->
+    
+    <!-- Status & Alerts -->
+    <x:String x:Key="IconWarning">⚠</x:String>            <!-- Material: &#xe002; -->
+    <x:String x:Key="IconError">⊗</x:String>              <!-- Material: &#xe000; -->
+    <x:String x:Key="IconSuccess">✓</x:String>            <!-- Material: &#xe86c; -->
+    <x:String x:Key="IconBolt">⚡</x:String>              <!-- Material: &#xe3be; -->
+    
+    <!-- AI & Tech -->
+    <x:String x:Key="IconBrain">✨</x:String>             <!-- Material: &#xe65f; (auto_awesome) -->
+    <x:String x:Key="IconAI">✨</x:String>                <!-- Material: &#xe65f; -->
+    <x:String x:Key="IconStar">★</x:String>               <!-- Material: &#xe838; -->
+    <x:String x:Key="IconSparkles">✨</x:String>          <!-- Material: &#xe65f; -->
+    
+    <!-- Communication -->
+    <x:String x:Key="IconBroadcast">📢</x:String>         <!-- Material: &#xef42; (campaign) -->
+    <x:String x:Key="IconMessage">💬</x:String>           <!-- Material: &#xe0c9; -->
+    <x:String x:Key="IconNotification">🔔</x:String>      <!-- Material: &#xe7f4; -->
+    <x:String x:Key="IconSend">➤</x:String>              <!-- Material: &#xe163; -->
+    
+    <!-- Edit & Create -->
+    <x:String x:Key="IconAdd">+</x:String>                <!-- Material: &#xe145; -->
+    <x:String x:Key="IconRemove">−</x:String>             <!-- Material: &#xe15b; -->
+    <x:String x:Key="IconEdit">✎</x:String>               <!-- Material: &#xe3c9; -->
+    <x:String x:Key="IconDelete">🗑</x:String>            <!-- Material: &#xe872; -->
+    
+    <!-- Media -->
+    <x:String x:Key="IconPlay">▶</x:String>               <!-- Material: &#xe037; -->
+    <x:String x:Key="IconSkipNext">⏭</x:String>           <!-- Material: &#xe044; -->
+    <x:String x:Key="IconSkipPrevious">⏮</x:String>       <!-- Material: &#xe045; -->
+    <x:String x:Key="IconVolumeUp">🔊</x:String>          <!-- Material: &#xe050; -->
+    
+    <!-- Chart & Stats -->
+    <x:String x:Key="IconChart">📊</x:String>             <!-- Material: &#xe6e1; -->
+    <x:String x:Key="IconTrending">📈</x:String>          <!-- Material: &#xe8e5; -->
+    <x:String x:Key="IconAnalytics">📊</x:String>         <!-- Material: &#xe1b8; -->
+    
+    <!-- Files & Folders -->
+    <x:String x:Key="IconFolder">📁</x:String>            <!-- Material: &#xe2c7; -->
+    <x:String x:Key="IconFile">📄</x:String>              <!-- Material: &#xe24d; -->
+    <x:String x:Key="IconDownload">⬇</x:String>          <!-- Material: &#xe2c4; -->
+    <x:String x:Key="IconUpload">⬆</x:String>            <!-- Material: &#xe2c6; -->
+    
+    <!-- Time & Date -->
+    <x:String x:Key="IconClock">🕐</x:String>             <!-- Material: &#xe192; -->
+    <x:String x:Key="IconCalendar">📅</x:String>          <!-- Material: &#xe935; -->
+    <x:String x:Key="IconTimer">⏱</x:String>              <!-- Material: &#xe425; -->
+    
+    <!-- Arrow & Direction -->
+    <x:String x:Key="IconArrowUp">↑</x:String>            <!-- Material: &#xe316; -->
+    <x:String x:Key="IconArrowDown">↓</x:String>          <!-- Material: &#xe313; -->
+    <x:String x:Key="IconArrowLeft">←</x:String>          <!-- Material: &#xe314; -->
+    <x:String x:Key="IconArrowRight">→</x:String>         <!-- Material: &#xe315; -->
+    
+    <!-- Toggle & Check -->
+    <x:String x:Key="IconCheck">✓</x:String>              <!-- Material: &#xe5ca; -->
+    <x:String x:Key="IconCheckCircle">✓</x:String>        <!-- Material: &#xe86c; -->
+    <x:String x:Key="IconRadioOn">◉</x:String>            <!-- Material: &#xe837; -->
+    <x:String x:Key="IconRadioOff">○</x:String>           <!-- Material: &#xe836; -->
+    
+</ResourceDictionary>
