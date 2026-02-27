@@ -31,10 +31,12 @@ public static class MauiProgram
         // --- Enregistrement des ViewModels ---
         // Singleton pour la simulation : on veut garder l'état des agents si on change de page
         builder.Services.AddSingleton<SimulationViewModel>();
+        builder.Services.AddTransient<StartPageViewModel>();
         // Transient pour la config : on veut un formulaire vierge à chaque fois
         builder.Services.AddTransient<ConfigurationViewModel>();
 
         // --- Enregistrement des Vues ---
+        builder.Services.AddTransient<StartPage>();
         builder.Services.AddSingleton<SimulationPage>();
         builder.Services.AddTransient<ConfigurationPage>();
 

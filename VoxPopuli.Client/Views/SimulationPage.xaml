@@ -193,33 +193,6 @@
                                        FontAttributes="Bold" 
                                        TextColor="#34495E"/>
 
-                                <!-- Contrôle du nombre d'agents -->
-                                <Border BackgroundColor="#F8F9FA" Padding="10" StrokeThickness="1" Stroke="#E0E0E0">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="6"/>
-                                    </Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="5">
-                                        <Label Text="👥 Nombre d'agents" 
-                                               FontSize="13" 
-                                               FontAttributes="Bold" 
-                                               TextColor="#2C3E50"/>
-                                        <HorizontalStackLayout Spacing="10">
-                                            <Slider x:Name="AgentCountSlider"
-                                                    Minimum="100" 
-                                                    Maximum="1000" 
-                                                    Value="{Binding AgentCount, Mode=TwoWay}"
-                                                    HorizontalOptions="FillAndExpand"
-                                                    ValueChanged="OnAgentCountChanged"/>
-                                            <Label Text="{Binding AgentCount}" 
-                                                   FontSize="16" 
-                                                   FontAttributes="Bold"
-                                                   TextColor="#3498DB"
-                                                   WidthRequest="50"
-                                                   HorizontalTextAlignment="End"/>
-                                        </HorizontalStackLayout>
-                                    </VerticalStackLayout>
-                                </Border>
-
                                 <Button Text="▶  Diffuser Message A"
                                         BackgroundColor="#3498DB" 
                                         TextColor="White"

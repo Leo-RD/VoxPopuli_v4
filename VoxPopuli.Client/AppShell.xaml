@@ -5,7 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:VoxPopuli.Client"
     xmlns:views="clr-namespace:VoxPopuli.Client.Views"
-    Title="VoxPopuli.Client">
+    Title="VoxPopuli.Client"
+    FlyoutBehavior="Disabled">
+
+    <ShellContent
+        Title="Accueil"
+        ContentTemplate="{DataTemplate views:StartPage}"
+        Route="StartPage" />
 
     <ShellContent
         Title="Simulation"

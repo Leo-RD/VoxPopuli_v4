@@ -4,9 +4,24 @@ using VoxPopuli.Client.ViewModels;
 
 namespace VoxPopuli.Client.Views;
 
+[QueryProperty(nameof(AgentCount), "AgentCount")]
 public partial class SimulationPage : ContentPage
 {
     private readonly SimulationViewModel _viewModel;
+    private int _agentCount = 500; // Valeur par défaut
+
+    public int AgentCount
+    {
+        get => _agentCount;
+        set
+        {
+            _agentCount = value;
+            if (_viewModel != null)
+            {
+                _viewModel.ResetSimulationCommand.Execute((object)value);
+            }
+        }
+    }
 
     // Cache des outils de dessin (Optimisation GC Critique)
     private readonly SKPaint _agentPaint = new SKPaint
@@ -35,28 +50,9 @@ public partial class SimulationPage : ContentPage
         _viewModel = viewModel;
         BindingContext = _viewModel;
 
-        // Initialiser le slider avec la valeur actuelle
-        AgentCountSlider.Value = _viewModel.AgentCount;
-
-        // Démarrage de la boucle de rendu (Game Loop) optimisée pour 60 FPS
-        // Utilisation d'un timer plus précis
+        // Démarrage de la boucle de rendu (Game Loop) configurée pour 30 FPS
+        // Pour une meilleure stabilité
         StartRenderLoop();
-    }
-
-    private void OnAgentCountChanged(object sender, ValueChangedEventArgs e)
-    {
-        // Arrondir à la dizaine la plus proche pour éviter des mises à jour trop fréquentes
-        int newCount = (int)Math.Round(e.NewValue / 10) * 10;
-
-        if (newCount != _viewModel.AgentCount && newCount >= 100)
-        {
-            // Appeler directement InitializePopulation via une méthode publique
-            System.Diagnostics.Debug.WriteLine($"👥 Changement du nombre d'agents: {_viewModel.AgentCount} → {newCount}");
-
-            // Boxing explicite de l'int en object
-            object parameter = newCount;
-            _viewModel.ResetSimulationCommand.Execute(parameter);
-        }
     }
 
     private void StartRenderLoop()

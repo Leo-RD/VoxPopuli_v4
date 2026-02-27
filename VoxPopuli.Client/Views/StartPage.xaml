@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:VoxPopuli.Client.Converters"
+             x:Class="VoxPopuli.Client.Views.StartPage"
+             Title="VoxPopuli 4.0 - Configuration"
+             BackgroundColor="#2C3E50">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="40">
+
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" 
+                             Spacing="10" 
+                             HorizontalOptions="Center"
+                             Margin="0,40,0,0">
+            <Label Text="VoxPopuli 4.0" 
+                   FontSize="48" 
+                   FontAttributes="Bold" 
+                   TextColor="White" 
+                   HorizontalOptions="Center"/>
+            <Label Text="Simulateur d'Opinion Publique" 
+                   FontSize="20" 
+                   TextColor="#BDC3C7" 
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Configuration Panel -->
+        <Border Grid.Row="1" 
+                Margin="0,60,0,40"
+                BackgroundColor="White" 
+                StrokeThickness="0"
+                Padding="40"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                MaximumWidthRequest="600">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12"/>
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="30">
+                
+                <!-- Title -->
+                <Label Text="⚙️ Configuration de la simulation" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       TextColor="#2C3E50"
+                       HorizontalOptions="Center"/>
+
+                <!-- Agent Count Section -->
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="👥 Nombre d'agents" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495E"/>
+                    
+                    <Label Text="{Binding AgentCountDisplay}" 
+                           FontSize="32" 
+                           FontAttributes="Bold" 
+                           TextColor="#3498DB"
+                           HorizontalOptions="Center"
+                           Margin="0,10"/>
+
+                    <Slider Minimum="100" 
+                            Maximum="1000" 
+                            Value="{Binding SelectedAgentCount, Mode=TwoWay}"
+                            MinimumTrackColor="#3498DB"
+                            MaximumTrackColor="#ECF0F1"
+                            ThumbColor="#3498DB"/>
+
+                    <Grid ColumnDefinitions="*, *, *" Margin="0,5">
+                        <Label Grid.Column="0" Text="100" FontSize="12" TextColor="#7F8C8D" HorizontalOptions="Start"/>
+                        <Label Grid.Column="1" Text="500" FontSize="12" TextColor="#7F8C8D" HorizontalOptions="Center"/>
+                        <Label Grid.Column="2" Text="1000" FontSize="12" TextColor="#7F8C8D" HorizontalOptions="End"/>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Quick Presets -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="⚡ Préréglages rapides" 
+                           FontSize="14" 
+                           FontAttributes="Bold" 
+                           TextColor="#34495E"/>
+                    
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                        <Button Grid.Column="0" 
+                                Text="200"
+                                BackgroundColor="#95A5A6"
+                                TextColor="White"
+                                Clicked="OnPresetClicked"/>
+                        <Button Grid.Column="1" 
+                                Text="500"
+                                BackgroundColor="#95A5A6"
+                                TextColor="White"
+                                Clicked="OnPresetClicked"/>
+                        <Button Grid.Column="2" 
+                                Text="800"
+                                BackgroundColor="#95A5A6"
+                                TextColor="White"
+                                Clicked="OnPresetClicked"/>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Performance Warning -->
+                <Border BackgroundColor="#FFF3CD" 
+                        Padding="15" 
+                        StrokeThickness="1" 
+                        Stroke="#FFC107"
+                        IsVisible="{Binding SelectedAgentCount, Converter={StaticResource GreaterThanConverter}, ConverterParameter=700}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="6"/>
+                    </Border.StrokeShape>
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="⚠️" FontSize="20" VerticalOptions="Center"/>
+                        <Label Text="Attention : Un grand nombre d'agents peut ralentir la simulation" 
+                               FontSize="12" 
+                               TextColor="#856404"
+                               VerticalOptions="Center"
+                               LineBreakMode="WordWrap"
+                               MaximumWidthRequest="450"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Start Button -->
+                <Button Text="🚀 Démarrer la simulation" 
+                        BackgroundColor="#27AE60" 
+                        TextColor="White"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        Padding="20,15"
+                        Margin="0,20,0,0"
+                        Command="{Binding StartSimulationCommand}"/>
+
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Footer -->
+        <Label Grid.Row="2" 
+               Text="VoxPopuli 4.0 - .NET MAUI | Powered by ONNX Runtime" 
+               FontSize="12" 
+               TextColor="#95A5A6" 
+               HorizontalOptions="Center"
+               Margin="0,0,0,20"/>
+    </Grid>
+</ContentPage>
