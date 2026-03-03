@@ -39,8 +39,8 @@ public static class MauiProgram
            });
 
         // --- Enregistrement des Services (Phase 3) ---
-        // builder.Services.AddSingleton<IAgentService, AgentService>();
-        builder.Services.AddSingleton<OnnxInferenceService>();  // AJOUT ICI
+        // Service ML.NET pour l'inférence du modèle d'opinions
+        builder.Services.AddSingleton<MLNetInferenceService>();
         
 
         // --- Enregistrement des ViewModels ---

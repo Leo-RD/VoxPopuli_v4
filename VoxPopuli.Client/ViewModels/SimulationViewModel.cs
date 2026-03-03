@@ -9,7 +9,7 @@ namespace VoxPopuli.Client.ViewModels;
 
 public partial class SimulationViewModel : BaseViewModel
 {
-    private readonly OnnxInferenceService _onnxService;
+    private readonly MLNetInferenceService _mlNetService;
     private readonly Random _random = new Random();
 
     // Constantes pour la simulation
@@ -42,12 +42,12 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private float zoomLevel = 1.0f; // Niveau de zoom (1.0 = 100%)
 
-    public SimulationViewModel(OnnxInferenceService onnxService)
+    public SimulationViewModel(MLNetInferenceService mlNetService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
-        _onnxService = onnxService;
-        Task.Run(async () => await _onnxService.InitializeAsync());
-        InitializePopulation(500); // Réduit à 400 pour plus de stabilité à 30 FPS ; si changement ici changer ligne 57
+        _mlNetService = mlNetService;
+        Task.Run(async () => await _mlNetService.InitializeAsync());
+        InitializePopulation(500);
         System.Diagnostics.Debug.WriteLine($"📊 SimulationViewModel: {Population.Count} agents créés");
     }
 
@@ -148,20 +148,20 @@ public partial class SimulationViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Exécute l'inférence ONNX sur tous les agents
+    /// Exécute l'inférence ML.NET sur tous les agents
     /// </summary>
     [RelayCommand]
     private async Task RunInferenceAsync()
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine($"🧠 Démarrage de l'inférence sur {Population.Count} agents...");
+            System.Diagnostics.Debug.WriteLine($"🧠 Démarrage de l'inférence ML.NET sur {Population.Count} agents...");
 
             // Traitement optimisé par batch
             var inputVectors = Population.Select(a => a.OpinionVector).ToArray();
             System.Diagnostics.Debug.WriteLine($"   - Vecteurs d'entrée préparés");
 
-            var predictions = _onnxService.PredictBatch(inputVectors);
+            var predictions = _mlNetService.PredictBatch(inputVectors);
             System.Diagnostics.Debug.WriteLine($"   - Prédictions reçues");
 
             // Mise à jour des agents avec les prédictions
@@ -179,14 +179,14 @@ public partial class SimulationViewModel : BaseViewModel
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine($"✅ Inférence terminée avec succès!");
+            System.Diagnostics.Debug.WriteLine($"✅ Inférence ML.NET terminée avec succès!");
 
             // Forcer la notification de changement
             OnPropertyChanged(nameof(Population));
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"❌ Erreur inférence: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Erreur inférence ML.NET: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"   Stack: {ex.StackTrace}");
         }
     }

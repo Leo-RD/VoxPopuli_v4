@@ -6,33 +6,10 @@
              Title="VoxPopuli 4.0"
              BackgroundColor="#2C3E50">
 
-    <Grid RowDefinitions="Auto, Auto, *">
-
-        <!-- Header Section -->
-        <VerticalStackLayout Grid.Row="0" Padding="20,10" Spacing="5">
-            <Label Text="VoxPopuli 4.0" 
-                   FontFamily="AvantGardeBold"
-                   FontSize="28" 
-                   TextColor="White" 
-                   HorizontalOptions="Center"/>
-            <Label Text="Simulateur d'Opinion Publique - Wireframes .NET MAUI" 
-                   FontFamily="AvantGardeBook"
-                   FontSize="14" 
-                   TextColor="#BDC3C7" 
-                   HorizontalOptions="Center"/>
-        </VerticalStackLayout>
-
-        <!-- Section Title -->
-        <Label Grid.Row="1" 
-               Text="Simulation - Vue 2D avec Agents" 
-               FontFamily="AvantGardeDemi"
-               FontSize="20" 
-               TextColor="White" 
-               Padding="20,10"
-               HorizontalOptions="Center"/>
+    <Grid RowDefinitions="*">
 
         <!-- Main Content Panel -->
-        <Border Grid.Row="2" 
+        <Border Grid.Row="0"
                 Margin="20,10,20,20" 
                 BackgroundColor="White" 
                 StrokeThickness="0"
@@ -217,8 +194,8 @@
                                         TextColor="White"
                                         FontFamily="AvantGardeDemi"
                                         FontSize="14"/>
-                                <!-- AJOUTEZ CE BOUTON dans la section des contrôles -->
-                                <Button Text="✨ Exécuter Inférence IA" 
+                                <!-- Bouton Inférence ML.NET -->
+                                <Button Text="🧠 Exécuter Inférence ML.NET" 
                                         BackgroundColor="#9B59B6" 
                                         TextColor="White"
                                         FontFamily="AvantGardeDemi"
@@ -238,8 +215,8 @@
                                            FontSize="14" 
                                            TextColor="#2C3E50"/>
 
-                                                                    <!-- AJOUTEZ ICI -->
-                                                                    <Button Text="✨ Exécuter Inférence ONNX" 
+                                                                    <!-- Inférence ML.NET -->
+                                                                    <Button Text="🧠 Exécuter Inférence ML.NET" 
                                                                         BackgroundColor="#9B59B6" 
                                                                         TextColor="White"
                                                                         FontFamily="AvantGardeDemi"

@@ -12,27 +12,10 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto, *, Auto" Padding="40">
-
-        <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" 
-                             Spacing="10" 
-                             HorizontalOptions="Center"
-                             Margin="0,40,0,0">
-            <Label Text="VoxPopuli 4.0" 
-                   FontFamily="AvantGardeBold"
-                   FontSize="48" 
-                   TextColor="White" 
-                   HorizontalOptions="Center"/>
-            <Label Text="Simulateur d'Opinion Publique" 
-                   FontFamily="AvantGardeBook"
-                   FontSize="20" 
-                   TextColor="#BDC3C7" 
-                   HorizontalOptions="Center"/>
-        </VerticalStackLayout>
+    <Grid RowDefinitions="*, Auto" Padding="40">
 
         <!-- Configuration Panel -->
-        <Border Grid.Row="1" 
+        <Border Grid.Row="0"
                 Margin="0,60,0,40"
                 BackgroundColor="White" 
                 StrokeThickness="0"
