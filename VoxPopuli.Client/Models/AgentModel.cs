@@ -75,6 +75,18 @@ public class AgentModel
     public string Group { get; set; } = "Neutre";
 
     /// <summary>
+    /// Orientation politique de l'agent (Gauche ou Droite).
+    /// Assignée aléatoirement au lancement.
+    /// </summary>
+    public PoliticalOrientation PoliticalOrientation { get; set; }
+
+    /// <summary>
+    /// Indique si l'agent est content avec le message politique actuel.
+    /// Content = Vert, Pas content = Rouge
+    /// </summary>
+    public bool IsHappy { get; set; } = true;
+
+    /// <summary>
     /// Indique si l'agent a été influencé par un message.
     /// </summary>
     public bool IsInfluenced { get; set; } = false;
@@ -110,4 +122,13 @@ public enum EmotionalState
     Happy,      // Adhésion positive (Vert)
     Angry,      // Rejet (Rouge)
     Fearful     // Fuite
+}
+
+/// <summary>
+/// Orientation politique d'un agent
+/// </summary>
+public enum PoliticalOrientation
+{
+    Left,   // Gauche
+    Right   // Droite
 }

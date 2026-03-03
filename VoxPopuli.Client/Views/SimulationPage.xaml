@@ -113,23 +113,19 @@
                                 <VerticalStackLayout Padding="10" 
                                                      VerticalOptions="Start" 
                                                      HorizontalOptions="Start"
-                                                     Spacing="4">
+                                                     Spacing="4"
+                                                     BackgroundColor="#F8F9FA"
+                                                     Opacity="0.9">
+                                    <Label Text="Légende" FontFamily="AvantGardeBold" FontSize="12" TextColor="#2C3E50" Margin="0,0,0,5"/>
                                     <HorizontalStackLayout Spacing="6">
-                                        <BoxView Color="#3498DB" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe A - Accord" TextColor="#2C3E50" FontFamily="AvantGardeDemi" FontSize="11"/>
+                                        <BoxView Color="#2ECC71" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
+                                        <Label Text="Content (Gauche/Droite aligné)" TextColor="#2C3E50" FontFamily="AvantGardeDemi" FontSize="11"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout Spacing="6">
                                         <BoxView Color="#E74C3C" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe A - Rejet" TextColor="#2C3E50" FontFamily="AvantGardeDemi" FontSize="11"/>
+                                        <Label Text="Pas Content (Opposition)" TextColor="#2C3E50" FontFamily="AvantGardeDemi" FontSize="11"/>
                                     </HorizontalStackLayout>
-                                    <HorizontalStackLayout Spacing="6">
-                                        <BoxView Color="#2ECC71" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe B - Accord" TextColor="#2C3E50" FontFamily="AvantGardeDemi" FontSize="11"/>
-                                    </HorizontalStackLayout>
-                                    <HorizontalStackLayout Spacing="6">
-                                        <BoxView Color="#F39C12" WidthRequest="12" HeightRequest="12" CornerRadius="6"/>
-                                        <Label Text="Groupe B - Rejet" TextColor="#2C3E50" FontFamily="AvantGardeDemi" FontSize="11"/>
-                                    </HorizontalStackLayout>
+                                    <Label Text="🔴 Rouges = Vitesse x2" TextColor="#E74C3C" FontFamily="AvantGardeDemi" FontSize="10" Margin="0,5,0,0"/>
                                 </VerticalStackLayout>
 
                                 <!-- Agent Count Badge -->
@@ -173,6 +169,29 @@
                                        FontFamily="AvantGardeDemi"
                                        FontSize="14" 
                                        TextColor="#34495E"/>
+
+                                <!-- Saisie de phrase politique -->
+                                <Border BackgroundColor="#F8F9FA" Padding="10" StrokeThickness="1" Stroke="#E0E0E0" Margin="0,5">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="💬 Phrase Politique" 
+                                               FontFamily="AvantGardeDemi"
+                                               FontSize="12" 
+                                               TextColor="#2C3E50"/>
+                                        <Entry x:Name="PoliticalPhraseEntry"
+                                               Placeholder="Ex: Il faut taxer les richesses..."
+                                               FontSize="12"
+                                               Text="{Binding CurrentPoliticalPhrase}"/>
+                                        <Button Text="▶ Analyser et Diffuser"
+                                                BackgroundColor="#27AE60" 
+                                                TextColor="White"
+                                                FontFamily="AvantGardeDemi"
+                                                FontSize="12"
+                                                Command="{Binding AnalyzePhraseCommand}"/>
+                                    </VerticalStackLayout>
+                                </Border>
 
                                 <Button Text="▶  Diffuser Message A"
                                         BackgroundColor="#3498DB" 

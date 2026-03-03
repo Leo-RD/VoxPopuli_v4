@@ -16,6 +16,8 @@ public partial class SimulationViewModel : BaseViewModel
     private const float WorldWidth = 1000f;
     private const float WorldHeight = 1000f;
     private const float DirectionChangeChance = 0.05f; // 5% de chance de changer de direction par frame
+    private const float HappyAgentSpeed = 1.5f; // Vitesse des agents contents (verts)
+    private const float UnhappyAgentSpeed = 3.0f; // Vitesse des agents pas contents (rouges)
 
     // Tracking du FPS
     private DateTime _lastFrameTime = DateTime.Now;
@@ -24,6 +26,9 @@ public partial class SimulationViewModel : BaseViewModel
 
     [ObservableProperty]
     private int currentFps = 60;
+
+    [ObservableProperty]
+    private string currentPoliticalPhrase = "";
 
     public List<AgentModel> Population { get; private set; } = new();
 
@@ -103,12 +108,8 @@ public partial class SimulationViewModel : BaseViewModel
     [RelayCommand]
     private void TriggerEvent()
     {
-        // Exemple : Changer l'état émotionnel et la couleur
-        foreach (var agent in Population)
-        {
-            agent.CurrentEmotion = EmotionalState.Agitated;
-            agent.RenderColor = SKColors.Red;
-        }
+        // Exemple de phrase de gauche
+        AnalyzePoliticalPhrase("Il faut taxer les richesses pour redistribuer les ressources");
     }
 
     /// <summary>
@@ -117,10 +118,65 @@ public partial class SimulationViewModel : BaseViewModel
     [RelayCommand]
     private void BroadcastMessageB()
     {
+        // Exemple de phrase de droite
+        AnalyzePoliticalPhrase("Il faut baisser les impôts pour libérer l'entreprise");
+    }
+
+    /// <summary>
+    /// Analyse une phrase politique et met à jour les agents en conséquence.
+    /// </summary>
+    /// <param name="phrase">La phrase politique à analyser</param>
+    public void AnalyzePoliticalPhrase(string phrase)
+    {
+        CurrentPoliticalPhrase = phrase;
+        float phraseScore = PoliticalPhraseAnalyzer.AnalyzePhrase(phrase);
+
+        System.Diagnostics.Debug.WriteLine($"📢 Phrase politique analysée: '{phrase}'");
+        System.Diagnostics.Debug.WriteLine($"   Score: {phraseScore:F2} ({(phraseScore < 0 ? "Gauche" : phraseScore > 0 ? "Droite" : "Neutre")})");
+
+        int happyCount = 0;
+        int unhappyCount = 0;
+
         foreach (var agent in Population)
         {
-            agent.CurrentEmotion = EmotionalState.Happy;
-            agent.RenderColor = SKColors.Purple;
+            // Déterminer si l'agent est content
+            bool isHappy = PoliticalPhraseAnalyzer.IsAgentHappy(agent.PoliticalOrientation, phrase);
+            agent.IsHappy = isHappy;
+
+            if (isHappy)
+            {
+                // Agent content : vert, vitesse normale
+                agent.RenderColor = SKColors.Green;
+                agent.MaxSpeed = HappyAgentSpeed;
+                agent.CurrentEmotion = EmotionalState.Happy;
+                happyCount++;
+            }
+            else
+            {
+                // Agent pas content : rouge, vitesse augmentée
+                agent.RenderColor = SKColors.Red;
+                agent.MaxSpeed = UnhappyAgentSpeed;
+                agent.CurrentEmotion = EmotionalState.Angry;
+                unhappyCount++;
+            }
+        }
+
+        System.Diagnostics.Debug.WriteLine($"   Résultat: {happyCount} contents (verts), {unhappyCount} pas contents (rouges)");
+    }
+
+    /// <summary>
+    /// Commande pour analyser la phrase saisie par l'utilisateur
+    /// </summary>
+    [RelayCommand]
+    private void AnalyzePhrase()
+    {
+        if (!string.IsNullOrWhiteSpace(CurrentPoliticalPhrase))
+        {
+            AnalyzePoliticalPhrase(CurrentPoliticalPhrase);
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("⚠️ Aucune phrase politique saisie");
         }
     }
 
@@ -245,29 +301,18 @@ public partial class SimulationViewModel : BaseViewModel
             agent.Direction = (float)(_random.NextDouble() * Math.PI * 2);
         }
 
-        // 2. Calculer le facteur de vitesse selon l'émotion
-        float speedMultiplier = agent.CurrentEmotion switch
-        {
-            EmotionalState.Agitated => 2.5f,  // Très rapide
-            EmotionalState.Fearful => 3.0f,   // Fuite rapide
-            EmotionalState.Happy => 1.2f,     // Légèrement plus rapide
-            EmotionalState.Angry => 1.8f,     // Rapide
-            EmotionalState.Neutral => 1.0f,   // Vitesse normale
-            _ => 1.0f
-        };
-
-        // 3. Calculer la nouvelle vitesse basée sur la direction
-        float baseSpeed = agent.MaxSpeed * speedMultiplier;
+        // 2. Utiliser directement la MaxSpeed de l'agent (déjà configurée selon son état émotionnel)
+        float baseSpeed = agent.MaxSpeed;
 
         // Optimisation : Utiliser MathF pour de meilleures performances
         agent.VelocityX = MathF.Cos(agent.Direction) * baseSpeed;
         agent.VelocityY = MathF.Sin(agent.Direction) * baseSpeed;
 
-        // 4. Mettre à jour la position
+        // 3. Mettre à jour la position
         agent.X += agent.VelocityX;
         agent.Y += agent.VelocityY;
 
-        // 5. Gestion des rebonds sur les bords
+        // 4. Gestion des rebonds sur les bords
         HandleBoundaryCollision(agent);
     }
 
@@ -324,6 +369,11 @@ public partial class SimulationViewModel : BaseViewModel
             // Direction initiale aléatoire
             float initialDirection = (float)(random.NextDouble() * Math.PI * 2);
 
+            // Assigner aléatoirement une orientation politique (50% gauche, 50% droite)
+            var politicalOrientation = random.Next(2) == 0 
+                ? PoliticalOrientation.Left 
+                : PoliticalOrientation.Right;
+
             Population.Add(new AgentModel
             {
                 X = random.Next(0, 1000),
@@ -337,11 +387,17 @@ public partial class SimulationViewModel : BaseViewModel
                     (float)random.NextDouble()
                 },
                 CurrentEmotion = EmotionalState.Neutral,
-                RenderColor = SKColors.BlueViolet,
+                PoliticalOrientation = politicalOrientation,
+                IsHappy = true, // Par défaut content
+                RenderColor = SKColors.Green, // Par défaut vert
                 Direction = initialDirection,
-                MaxSpeed = 1.5f + (float)random.NextDouble() * 1.0f, // Vitesse variable entre 1.5 et 2.5
+                MaxSpeed = HappyAgentSpeed, // Vitesse normale par défaut
                 Group = i < count / 2 ? "A" : "B" // Répartition 50/50 entre groupes A et B
             });
         }
+
+        System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents");
+        var leftCount = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Left);
+        System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount}, Droite: {count - leftCount}");
     }
 }

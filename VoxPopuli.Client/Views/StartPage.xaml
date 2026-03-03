@@ -144,7 +144,7 @@
 
         <!-- Footer -->
         <Label Grid.Row="2" 
-               Text="VoxPopuli 4.0 - .NET MAUI | Powered by ONNX Runtime" 
+               Text="VoxPopuli 4.0 - .NET 10 MAUI | Powered by ML.NET | © 2026 Leo-RD on GitHub " 
                FontSize="12" 
                TextColor="#95A5A6" 
                HorizontalOptions="Center"
