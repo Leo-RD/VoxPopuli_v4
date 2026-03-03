@@ -47,6 +47,15 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private float zoomLevel = 1.0f; // Niveau de zoom (1.0 = 100%)
 
+    [ObservableProperty]
+    private AgentModel? selectedAgent = null;
+
+    [ObservableProperty]
+    private bool isAgentSelected = false;
+
+    [ObservableProperty]
+    private string selectedAgentInfo = "";
+
     public SimulationViewModel(MLNetInferenceService mlNetService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
@@ -187,6 +196,85 @@ public partial class SimulationViewModel : BaseViewModel
     private async Task NavigateToSettings()
     {
         await Shell.Current.GoToAsync("//StartPage");
+    }
+
+    /// <summary>
+    /// Sélectionne un agent en fonction des coordonnées cliquées (coordonnées monde virtuel)
+    /// </summary>
+    /// <param name="worldX">Coordonnée X dans l'espace virtuel (0-1000)</param>
+    /// <param name="worldY">Coordonnée Y dans l'espace virtuel (0-1000)</param>
+    public void SelectAgentAt(float worldX, float worldY)
+    {
+        const float clickRadius = 15f; // Rayon de détection en pixels du monde virtuel
+        AgentModel? closestAgent = null;
+        float closestDistance = float.MaxValue;
+
+        // Trouver l'agent le plus proche du clic
+        foreach (var agent in Population)
+        {
+            float dx = agent.X - worldX;
+            float dy = agent.Y - worldY;
+            float distance = MathF.Sqrt(dx * dx + dy * dy);
+
+            if (distance < clickRadius && distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestAgent = agent;
+            }
+        }
+
+        if (closestAgent != null)
+        {
+            SelectedAgent = closestAgent;
+            IsAgentSelected = true;
+            UpdateSelectedAgentInfo();
+            System.Diagnostics.Debug.WriteLine($"🎯 Agent sélectionné: {closestAgent.Id}");
+        }
+        else
+        {
+            // Déselectionner si clic dans le vide
+            SelectedAgent = null;
+            IsAgentSelected = false;
+            SelectedAgentInfo = "";
+        }
+    }
+
+    /// <summary>
+    /// Met à jour les informations affichées pour l'agent sélectionné
+    /// </summary>
+    private void UpdateSelectedAgentInfo()
+    {
+        if (SelectedAgent == null)
+        {
+            SelectedAgentInfo = "";
+            return;
+        }
+
+        var orientation = SelectedAgent.PoliticalOrientation == PoliticalOrientation.Left ? "Gauche 🔴" : "Droite 🔵";
+        var emotion = SelectedAgent.IsHappy ? "Content 😊" : "Pas content 😠";
+        var speed = $"{SelectedAgent.MaxSpeed:F1} px/frame";
+        var position = $"({SelectedAgent.X:F0}, {SelectedAgent.Y:F0})";
+
+        SelectedAgentInfo = $@"🎯 Agent Sélectionné
+
+📍 Position: {position}
+🏛️ Orientation: {orientation}
+😊 État: {emotion}
+⚡ Vitesse: {speed}
+🎨 Groupe: {SelectedAgent.Group}";
+
+        System.Diagnostics.Debug.WriteLine($"📊 Info agent mise à jour: {orientation}, {emotion}");
+    }
+
+    /// <summary>
+    /// Désélectionne l'agent actuellement sélectionné
+    /// </summary>
+    [RelayCommand]
+    private void DeselectAgent()
+    {
+        SelectedAgent = null;
+        IsAgentSelected = false;
+        SelectedAgentInfo = "";
     }
 
     /// <summary>

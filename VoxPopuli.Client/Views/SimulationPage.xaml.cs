@@ -44,11 +44,23 @@ public partial class SimulationPage : ContentPage
         Style = SKPaintStyle.Fill
     };
 
+    private readonly SKPaint _selectedAgentPaint = new SKPaint
+    {
+        Color = SKColors.Yellow,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 3,
+        IsAntialias = true
+    };
+
     public SimulationPage(SimulationViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
+
+        // Activer les événements tactiles
+        SimulationCanvas.EnableTouchEvents = true;
+        SimulationCanvas.Touch += OnCanvasTouch;
 
         // Démarrage de la boucle de rendu (Game Loop) configurée pour 30 FPS
         // Pour une meilleure stabilité
@@ -102,12 +114,17 @@ public partial class SimulationPage : ContentPage
             _agentPaint.Color = agent.RenderColor;
 
             // Dessin du cercle (Agent) avec scaling indépendant X/Y pour remplir le canvas
-            canvas.DrawCircle(
-                agent.X * scaleX,  // Projection X avec scale X et zoom
-                agent.Y * scaleY,  // Projection Y avec scale Y et zoom
-                4 * _viewModel.ZoomLevel, // Rayon adapté au zoom
-                _agentPaint
-            );
+            float agentX = agent.X * scaleX;
+            float agentY = agent.Y * scaleY;
+            float agentRadius = 4 * _viewModel.ZoomLevel;
+
+            canvas.DrawCircle(agentX, agentY, agentRadius, _agentPaint);
+
+            // Si c'est l'agent sélectionné, dessiner un cercle jaune autour
+            if (_viewModel.SelectedAgent != null && agent.Id == _viewModel.SelectedAgent.Id)
+            {
+                canvas.DrawCircle(agentX, agentY, agentRadius + 4, _selectedAgentPaint);
+            }
         }
 
         // 4. Dessiner le compteur FPS en haut à droite
@@ -149,5 +166,34 @@ public partial class SimulationPage : ContentPage
 
         var indicatorPaint = new SKPaint { Color = indicatorColor, Style = SKPaintStyle.Fill };
         canvas.DrawCircle(rectX - 15, rectY + rectHeight / 2, 5, indicatorPaint);
+    }
+
+    /// <summary>
+    /// Gère les événements tactiles sur le canvas
+    /// </summary>
+    private void OnCanvasTouch(object? sender, SKTouchEventArgs e)
+    {
+        if (e.ActionType == SKTouchAction.Pressed)
+        {
+            // Récupérer les coordonnées du clic
+            float touchX = e.Location.X;
+            float touchY = e.Location.Y;
+
+            // Calculer le facteur d'échelle (comme dans OnCanvasPaintSurface)
+            var info = SimulationCanvas.CanvasSize;
+            float baseScaleX = info.Width / 1000f;
+            float baseScaleY = info.Height / 1000f;
+            float scaleX = baseScaleX * _viewModel.ZoomLevel;
+            float scaleY = baseScaleY * _viewModel.ZoomLevel;
+
+            // Convertir les coordonnées écran en coordonnées monde virtuel
+            float worldX = touchX / scaleX;
+            float worldY = touchY / scaleY;
+
+            // Sélectionner l'agent à ces coordonnées
+            _viewModel.SelectAgentAt(worldX, worldY);
+
+            e.Handled = true;
+        }
     }
 }

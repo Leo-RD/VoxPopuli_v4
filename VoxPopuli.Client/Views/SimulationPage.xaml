@@ -163,6 +163,40 @@
                     <ScrollView Grid.Column="1">
                         <VerticalStackLayout Spacing="15">
 
+                            <!-- Agent Info Panel (si sélectionné) -->
+                            <Border BackgroundColor="#FFF9E6" 
+                                    Padding="15" 
+                                    StrokeThickness="2"
+                                    Stroke="#FFD700"
+                                    IsVisible="{Binding IsAgentSelected}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <Label Grid.Column="0"
+                                               Text="🎯 Agent Sélectionné" 
+                                               FontFamily="AvantGardeBold"
+                                               FontSize="14" 
+                                               TextColor="#D4A017"
+                                               VerticalOptions="Center"/>
+                                        <Button Grid.Column="1"
+                                                Text="✕"
+                                                FontSize="16"
+                                                FontFamily="AvantGardeBold"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#D4A017"
+                                                Padding="8,4"
+                                                Command="{Binding DeselectAgentCommand}"/>
+                                    </Grid>
+                                    <Label Text="{Binding SelectedAgentInfo}"
+                                           FontFamily="AvantGardeBook"
+                                           FontSize="12"
+                                           TextColor="#2C3E50"
+                                           LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
+                            </Border>
+
                             <!-- Controls Section -->
                             <VerticalStackLayout Spacing="8">
                                 <Label Text="Contrôles" 

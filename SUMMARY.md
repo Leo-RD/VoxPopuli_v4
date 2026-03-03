@@ -8,6 +8,12 @@ Vous pouvez maintenant :
 3. ✅ **Les agents réagissent** selon leur alignement :
    - Content = **Vert** (vitesse normale : 1.5 px/frame)
    - Pas content = **Rouge** (vitesse x2 : 3.0 px/frame)
+4. ✅ **Cliquer sur un agent** pour voir ses informations détaillées :
+   - 📍 Position
+   - 🏛️ Orientation politique (Gauche/Droite)
+   - 😊 État émotionnel
+   - ⚡ Vitesse
+   - 🎨 Groupe
 
 ## 📁 Fichiers modifiés
 
@@ -27,16 +33,26 @@ Vous pouvez maintenant :
 - Commande `AnalyzePhraseCommand`
 - Constantes de vitesse `HappyAgentSpeed` et `UnhappyAgentSpeed`
 - Modification de `InitializePopulation()` pour assigner l'orientation politique
+- **NOUVEAU** : Propriétés pour la sélection d'agents (`SelectedAgent`, `IsAgentSelected`, `SelectedAgentInfo`)
+- **NOUVEAU** : Méthode `SelectAgentAt(worldX, worldY)` pour sélectionner un agent
+- **NOUVEAU** : Commande `DeselectAgentCommand` pour désélectionner
 
 ### 4. **SimulationPage.xaml** (modifié)
 - Ajout d'un `Entry` pour saisir une phrase politique
 - Bouton "Analyser et Diffuser"
 - Mise à jour de la légende
+- **NOUVEAU** : Panneau d'information pour l'agent sélectionné
 
-### 5. **Fichiers de documentation**
+### 5. **SimulationPage.xaml.cs** (modifié)
+- **NOUVEAU** : Gestion des événements tactiles (`OnCanvasTouch`)
+- **NOUVEAU** : Mise en évidence visuelle de l'agent sélectionné (cercle jaune)
+- **NOUVEAU** : Conversion des coordonnées écran → monde virtuel
+
+### 6. **Fichiers de documentation**
 - `IMPLEMENTATION_GUIDE.md` : Guide technique complet
 - `QUICK_START.md` : Guide de démarrage rapide
 - `Resources/MLModels/README.md` : Instructions pour le modèle ML.NET
+- **NOUVEAU** : `AGENT_SELECTION_GUIDE.md` : Guide de sélection d'agents
 
 ## 🏗️ Architecture
 
