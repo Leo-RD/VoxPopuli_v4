@@ -5,19 +5,21 @@ namespace VoxPopuli.Client.Services;
 
 /// <summary>
 /// Service d'inférence pour le modèle ML.NET de prédiction d'opinions politiques.
+/// Supporte à la fois l'analyse de vecteurs d'opinion ET de phrases textuelles.
 /// </summary>
 public class MLNetInferenceService : IDisposable
 {
     private MLContext? _mlContext;
     private ITransformer? _model;
-    private PredictionEngine<OpinionInput, OpinionOutput>? _predictionEngine;
-    private readonly string _modelPath;
+    private PredictionEngine<OpinionInput, OpinionOutput>? _opinionPredictionEngine;
+    private PredictionEngine<PhraseInput, PhraseOutput>? _phrasePredictionEngine;
     private bool _isInitialized;
     private bool _useDemoMode = true;
+    private bool _supportsTextInput = false;
 
     public MLNetInferenceService()
     {
-        _modelPath = Path.Combine(FileSystem.AppDataDirectory, "VoxPopuli.mlnet");
+        // Pas besoin de chemin local, on charge depuis le stream directement
     }
 
     /// <summary>
@@ -29,34 +31,69 @@ public class MLNetInferenceService : IDisposable
 
         try
         {
-            // Vérifier si le fichier existe dans les ressources
-            if (await FileSystem.AppPackageFileExistsAsync("VoxPopuli.mlnet"))
+            // === CODE DE DIAGNOSTIC TEMPORAIRE ===
+            string[] pathsToTry = new[]
             {
-                System.Diagnostics.Debug.WriteLine("✅ ML.NET: Fichier VoxPopuli.mlnet trouvé, chargement...");
+                "Models/VoxPopuli.mlnet",
+                "MLModels/VoxPopuli.mlnet",
+                "Resources/MLModels/VoxPopuli.mlnet",
+                "VoxPopuli.mlnet"
+            };
 
-                // Copier le modèle depuis les ressources vers AppDataDirectory
-                using var stream = await FileSystem.OpenAppPackageFileAsync("VoxPopuli.mlnet");
-                using var fileStream = File.Create(_modelPath);
-                await stream.CopyToAsync(fileStream);
-                await fileStream.FlushAsync();
+            System.Diagnostics.Debug.WriteLine("🔍 TEST DE TOUS LES CHEMINS POSSIBLES:");
+            foreach (var path in pathsToTry)
+            {
+                bool exists = await FileSystem.AppPackageFileExistsAsync(path);
+                System.Diagnostics.Debug.WriteLine($"   {(exists ? "✅ TROUVÉ" : "❌ ABSENT")} : {path}");
+            }
+            System.Diagnostics.Debug.WriteLine("");
+            // === FIN DU CODE DE DIAGNOSTIC ===
+
+            // Vérifier si le fichier existe dans les ressources (chemin complet avec dossier)
+            const string modelResourcePath = "Models/VoxPopuli.mlnet";
+
+            if (await FileSystem.AppPackageFileExistsAsync(modelResourcePath))
+            {
+                System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Fichier {modelResourcePath} trouvé, chargement...");
 
                 // Initialiser ML.NET
                 _mlContext = new MLContext(seed: 0);
-                
-                // Charger le modèle
-                _model = _mlContext.Model.Load(_modelPath, out var modelInputSchema);
-                
-                // Créer le prediction engine
-                _predictionEngine = _mlContext.Model.CreatePredictionEngine<OpinionInput, OpinionOutput>(_model);
-                
+
+                // Charger le modèle DIRECTEMENT depuis le stream (sans copier sur disque)
+                using var stream = await FileSystem.OpenAppPackageFileAsync(modelResourcePath);
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0; // Reset pour la lecture
+
+                // Charger depuis le MemoryStream
+                _model = _mlContext.Model.Load(memoryStream, out var modelInputSchema);
+
+                // Essayer de créer un prediction engine pour les phrases (texte)
+                try
+                {
+                    _phrasePredictionEngine = _mlContext.Model.CreatePredictionEngine<PhraseInput, PhraseOutput>(_model);
+                    _supportsTextInput = true;
+                    System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Modèle d'analyse de PHRASES chargé!");
+                }
+                catch
+                {
+                    System.Diagnostics.Debug.WriteLine($"⚠️ ML.NET: Le modèle ne supporte pas l'analyse de phrases (texte)");
+                    // Fallback sur OpinionVector
+                    _opinionPredictionEngine = _mlContext.Model.CreatePredictionEngine<OpinionInput, OpinionOutput>(_model);
+                    _supportsTextInput = false;
+                    System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Modèle de VECTEURS D'OPINION chargé");
+                }
+
                 _useDemoMode = false;
 
                 System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Modèle chargé avec succès!");
                 System.Diagnostics.Debug.WriteLine($"   - Input Schema: {modelInputSchema}");
+                System.Diagnostics.Debug.WriteLine($"   - Supporte texte: {_supportsTextInput}");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("⚠️ ML.NET: Fichier VoxPopuli.mlnet introuvable, mode DEMO activé");
+                System.Diagnostics.Debug.WriteLine($"⚠️ ML.NET: Fichier {modelResourcePath} introuvable, mode DEMO activé");
+                System.Diagnostics.Debug.WriteLine($"   Assurez-vous que le fichier est dans Resources/MLModels/ et configuré comme MauiAsset");
                 _useDemoMode = true;
             }
 
@@ -70,6 +107,87 @@ public class MLNetInferenceService : IDisposable
             _useDemoMode = true;
             _isInitialized = true;
         }
+    }
+
+    /// <summary>
+    /// Analyse une phrase politique et retourne un score (0 = gauche, 1 = droite).
+    /// </summary>
+    public float AnalyzePhrase(string phrase)
+    {
+        if (!_isInitialized)
+            throw new InvalidOperationException("Le service doit être initialisé avec InitializeAsync()");
+
+        // MODE DEMO ou modèle ne supporte pas le texte : Fallback sur mots-clés
+        if (_useDemoMode || !_supportsTextInput || _phrasePredictionEngine == null)
+        {
+            System.Diagnostics.Debug.WriteLine($"⚠️ ML.NET: Analyse de phrase non disponible, mode FALLBACK");
+            return SimulatePhraseAnalysis(phrase);
+        }
+
+        try
+        {
+            var input = new PhraseInput { Text = phrase };
+            var prediction = _phrasePredictionEngine.Predict(input);
+
+            System.Diagnostics.Debug.WriteLine($"🧠 ML.NET Prédiction:");
+            System.Diagnostics.Debug.WriteLine($"   - Label: {prediction.PredictedLabel}");
+            System.Diagnostics.Debug.WriteLine($"   - Scores: [{string.Join(", ", prediction.Score.Select(s => s.ToString("F3")))}]");
+
+            // Pour un modèle de classification binaire, Score contient [probGauche, probDroite]
+            // On normalise entre -1 (gauche) et +1 (droite)
+            float normalizedScore;
+
+            if (prediction.Score.Length >= 2)
+            {
+                // Différence entre prob droite et prob gauche
+                // Score[0] = gauche, Score[1] = droite
+                normalizedScore = prediction.Score[1] - prediction.Score[0];
+                System.Diagnostics.Debug.WriteLine($"   - Score normalisé: {normalizedScore:F3} (gauche={prediction.Score[0]:F3}, droite={prediction.Score[1]:F3})");
+            }
+            else
+            {
+                // Fallback si structure inattendue
+                System.Diagnostics.Debug.WriteLine($"⚠️ Structure de Score inattendue, fallback sur label");
+                normalizedScore = prediction.PredictedLabel.ToLowerInvariant() switch
+                {
+                    "right" or "droite" or "1" => 1.0f,
+                    "left" or "gauche" or "0" => -1.0f,
+                    _ => 0.0f
+                };
+            }
+
+            return normalizedScore;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ Erreur analyse phrase ML.NET: {ex.Message}");
+            return SimulatePhraseAnalysis(phrase);
+        }
+    }
+
+    /// <summary>
+    /// Simulation d'analyse de phrase (fallback si modèle non disponible).
+    /// </summary>
+    private float SimulatePhraseAnalysis(string phrase)
+    {
+        // Fallback simple basé sur des mots-clés
+        var lowerPhrase = phrase.ToLowerInvariant();
+        int leftCount = 0;
+        int rightCount = 0;
+
+        string[] leftWords = { "taxer", "redistribuer", "social", "public", "solidarité" };
+        string[] rightWords = { "liberté", "entreprise", "marché", "privé", "sécurité" };
+
+        foreach (var word in leftWords)
+            if (lowerPhrase.Contains(word)) leftCount++;
+
+        foreach (var word in rightWords)
+            if (lowerPhrase.Contains(word)) rightCount++;
+
+        if (leftCount + rightCount == 0) return 0;
+
+        // Normaliser entre -1 et +1
+        return (float)(rightCount - leftCount) / (leftCount + rightCount);
     }
 
     /// <summary>
@@ -89,8 +207,8 @@ public class MLNetInferenceService : IDisposable
         try
         {
             var input = new OpinionInput { OpinionVector = inputVector };
-            var prediction = _predictionEngine!.Predict(input);
-            
+            var prediction = _opinionPredictionEngine!.Predict(input);
+
             return prediction.PredictedOpinionVector ?? inputVector;
         }
         catch (Exception ex)
@@ -140,8 +258,10 @@ public class MLNetInferenceService : IDisposable
 
     public void Dispose()
     {
-        _predictionEngine?.Dispose();
-        _predictionEngine = null;
+        _opinionPredictionEngine?.Dispose();
+        _opinionPredictionEngine = null;
+        _phrasePredictionEngine?.Dispose();
+        _phrasePredictionEngine = null;
         _model = null;
         _mlContext = null;
         _isInitialized = false;

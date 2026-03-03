@@ -10,6 +10,7 @@ namespace VoxPopuli.Client.ViewModels;
 public partial class SimulationViewModel : BaseViewModel
 {
     private readonly MLNetInferenceService _mlNetService;
+    private readonly PoliticalPhraseAnalyzer _phraseAnalyzer;
     private readonly Random _random = new Random();
 
     // Constantes pour la simulation
@@ -56,10 +57,11 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private string selectedAgentInfo = "";
 
-    public SimulationViewModel(MLNetInferenceService mlNetService)
+    public SimulationViewModel(MLNetInferenceService mlNetService, PoliticalPhraseAnalyzer phraseAnalyzer)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
         _mlNetService = mlNetService;
+        _phraseAnalyzer = phraseAnalyzer;
         Task.Run(async () => await _mlNetService.InitializeAsync());
         InitializePopulation(500);
         System.Diagnostics.Debug.WriteLine($"📊 SimulationViewModel: {Population.Count} agents créés");
@@ -138,7 +140,7 @@ public partial class SimulationViewModel : BaseViewModel
     public void AnalyzePoliticalPhrase(string phrase)
     {
         CurrentPoliticalPhrase = phrase;
-        float phraseScore = PoliticalPhraseAnalyzer.AnalyzePhrase(phrase);
+        float phraseScore = _phraseAnalyzer.AnalyzePhrase(phrase);
 
         System.Diagnostics.Debug.WriteLine($"📢 Phrase politique analysée: '{phrase}'");
         System.Diagnostics.Debug.WriteLine($"   Score: {phraseScore:F2} ({(phraseScore < 0 ? "Gauche" : phraseScore > 0 ? "Droite" : "Neutre")})");
@@ -149,7 +151,7 @@ public partial class SimulationViewModel : BaseViewModel
         foreach (var agent in Population)
         {
             // Déterminer si l'agent est content
-            bool isHappy = PoliticalPhraseAnalyzer.IsAgentHappy(agent.PoliticalOrientation, phrase);
+            bool isHappy = _phraseAnalyzer.IsAgentHappy(agent.PoliticalOrientation, phrase);
             agent.IsHappy = isHappy;
 
             if (isHappy)
