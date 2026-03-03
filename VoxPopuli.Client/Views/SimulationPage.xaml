@@ -183,6 +183,9 @@
                                         <Entry x:Name="PoliticalPhraseEntry"
                                                Placeholder="Ex: Il faut taxer les richesses..."
                                                FontSize="12"
+                                               TextColor="#2C3E50"
+                                               BackgroundColor="White"
+                                               PlaceholderColor="#95A5A6"
                                                Text="{Binding CurrentPoliticalPhrase}"/>
                                         <Button Text="▶ Analyser et Diffuser"
                                                 BackgroundColor="#27AE60" 
@@ -212,7 +215,8 @@
                                         BackgroundColor="#4A5568" 
                                         TextColor="White"
                                         FontFamily="AvantGardeDemi"
-                                        FontSize="14"/>
+                                        FontSize="14"
+                                        Command="{Binding NavigateToSettingsCommand}"/>
                                 <!-- Bouton Inférence ML.NET -->
                                 <Button Text="🧠 Exécuter Inférence ML.NET" 
                                         BackgroundColor="#9B59B6" 

@@ -181,6 +181,15 @@ public partial class SimulationViewModel : BaseViewModel
     }
 
     /// <summary>
+    /// Navigation vers la page de paramètres (StartPage)
+    /// </summary>
+    [RelayCommand]
+    private async Task NavigateToSettings()
+    {
+        await Shell.Current.GoToAsync("//StartPage");
+    }
+
+    /// <summary>
     /// Arrête ou redémarre la simulation
     /// </summary>
     [RelayCommand]
