@@ -389,7 +389,7 @@ public partial class SimulationViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Met à jour le mouvement d'un agent selon le Random Walk.
+    /// Met à jour le mouvement d'un agent selon le Random Walk et le regroupement par affinité.
     /// </summary>
     private void UpdateAgentMovement(AgentModel agent)
     {
@@ -400,19 +400,107 @@ public partial class SimulationViewModel : BaseViewModel
             agent.Direction = (float)(_random.NextDouble() * Math.PI * 2);
         }
 
-        // 2. Utiliser directement la MaxSpeed de l'agent (déjà configurée selon son état émotionnel)
+        // 2. Calculer les forces de regroupement par affinité politique
+        var (cohesionX, cohesionY) = CalculateFlockingForces(agent);
+
+        // 3. Utiliser directement la MaxSpeed de l'agent (déjà configurée selon son état émotionnel)
         float baseSpeed = agent.MaxSpeed;
 
-        // Optimisation : Utiliser MathF pour de meilleures performances
-        agent.VelocityX = MathF.Cos(agent.Direction) * baseSpeed;
-        agent.VelocityY = MathF.Sin(agent.Direction) * baseSpeed;
+        // 4. Combiner le mouvement aléatoire avec les forces de regroupement
+        float randomWeight = 0.4f;  // 40% de mouvement aléatoire
+        float flockingWeight = 0.6f; // 60% d'attraction vers le groupe (augmenté pour un regroupement plus fort)
 
-        // 3. Mettre à jour la position
+        agent.VelocityX = (MathF.Cos(agent.Direction) * baseSpeed * randomWeight) + (cohesionX * flockingWeight);
+        agent.VelocityY = (MathF.Sin(agent.Direction) * baseSpeed * randomWeight) + (cohesionY * flockingWeight);
+
+        // 5. Limiter la vitesse maximale
+        float currentSpeed = MathF.Sqrt(agent.VelocityX * agent.VelocityX + agent.VelocityY * agent.VelocityY);
+        if (currentSpeed > agent.MaxSpeed)
+        {
+            agent.VelocityX = (agent.VelocityX / currentSpeed) * agent.MaxSpeed;
+            agent.VelocityY = (agent.VelocityY / currentSpeed) * agent.MaxSpeed;
+        }
+
+        // 6. Mettre à jour la position
         agent.X += agent.VelocityX;
         agent.Y += agent.VelocityY;
 
-        // 4. Gestion des rebonds sur les bords
+        // 7. Gestion des rebonds sur les bords
         HandleBoundaryCollision(agent);
+    }
+
+    /// <summary>
+    /// Calcule les forces de cohésion et de répulsion basées sur l'état émotionnel (content/pas content).
+    /// </summary>
+    private (float forceX, float forceY) CalculateFlockingForces(AgentModel agent)
+    {
+        const float perceptionRadius = 80f; // Distance de perception des autres agents
+        const float separationRadius = 20f; // Distance minimale entre agents
+        const float cohesionStrength = 2.0f; // Force d'attraction vers les alliés (même état émotionnel)
+        const float repulsionStrength = 3.0f; // Force de répulsion des adversaires (état émotionnel opposé)
+        const float separationStrength = 4.0f; // Force de séparation pour éviter les collisions
+
+        float cohesionX = 0f;
+        float cohesionY = 0f;
+        float separationX = 0f;
+        float separationY = 0f;
+        int allyCount = 0;
+        int enemyCount = 0;
+
+        foreach (var other in Population)
+        {
+            if (other == agent) continue;
+
+            float dx = other.X - agent.X;
+            float dy = other.Y - agent.Y;
+            float distance = MathF.Sqrt(dx * dx + dy * dy);
+
+            if (distance < 0.1f) continue; // Éviter la division par zéro
+
+            // Séparation : éviter les collisions rapprochées (tous agents)
+            if (distance < separationRadius)
+            {
+                float separationForce = separationStrength / distance;
+                separationX -= (dx / distance) * separationForce;
+                separationY -= (dy / distance) * separationForce;
+            }
+
+            // Cohésion/Répulsion : uniquement dans le rayon de perception
+            if (distance < perceptionRadius)
+            {
+                // Regroupement basé sur l'état émotionnel (IsHappy) au lieu de l'orientation politique
+                bool sameEmotionalState = agent.IsHappy == other.IsHappy;
+
+                if (sameEmotionalState)
+                {
+                    // Attraction vers les agents du même état émotionnel (verts avec verts, rouges avec rouges)
+                    cohesionX += dx / distance * cohesionStrength;
+                    cohesionY += dy / distance * cohesionStrength;
+                    allyCount++;
+                }
+                else
+                {
+                    // Répulsion légère des agents d'état émotionnel opposé
+                    float repulsionForce = repulsionStrength / distance;
+                    cohesionX -= (dx / distance) * repulsionForce;
+                    cohesionY -= (dy / distance) * repulsionForce;
+                    enemyCount++;
+                }
+            }
+        }
+
+        // Moyenner les forces de cohésion
+        if (allyCount > 0)
+        {
+            cohesionX /= allyCount;
+            cohesionY /= allyCount;
+        }
+
+        // Combiner cohésion et séparation
+        float totalForceX = cohesionX + separationX;
+        float totalForceY = cohesionY + separationY;
+
+        return (totalForceX, totalForceY);
     }
 
     /// <summary>
