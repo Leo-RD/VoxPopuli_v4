@@ -1,5 +1,6 @@
 using Microsoft.ML;
 using VoxPopuli.Client.Models;
+using Vox_populi_test_model;
 
 namespace VoxPopuli.Client.Services;
 
@@ -12,7 +13,7 @@ public class MLNetInferenceService : IDisposable
     private MLContext? _mlContext;
     private ITransformer? _model;
     private PredictionEngine<OpinionInput, OpinionOutput>? _opinionPredictionEngine;
-    private PredictionEngine<PhraseInput, PhraseOutput>? _phrasePredictionEngine;
+    private PredictionEngine<Vox_populi_test_model.VoxPopuli.ModelInput, Vox_populi_test_model.VoxPopuli.ModelOutput>? _phrasePredictionEngine;
     private bool _isInitialized;
     private bool _useDemoMode = true;
     private bool _supportsTextInput = false;
@@ -71,13 +72,14 @@ public class MLNetInferenceService : IDisposable
                 // Essayer de créer un prediction engine pour les phrases (texte)
                 try
                 {
-                    _phrasePredictionEngine = _mlContext.Model.CreatePredictionEngine<PhraseInput, PhraseOutput>(_model);
+                    _phrasePredictionEngine = _mlContext.Model.CreatePredictionEngine<Vox_populi_test_model.VoxPopuli.ModelInput, Vox_populi_test_model.VoxPopuli.ModelOutput>(_model);
                     _supportsTextInput = true;
                     System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Modèle d'analyse de PHRASES chargé!");
                 }
-                catch
+                catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"⚠️ ML.NET: Le modèle ne supporte pas l'analyse de phrases (texte)");
+                    System.Diagnostics.Debug.WriteLine($"   Erreur: {ex.Message}");
                     // Fallback sur OpinionVector
                     _opinionPredictionEngine = _mlContext.Model.CreatePredictionEngine<OpinionInput, OpinionOutput>(_model);
                     _supportsTextInput = false;
@@ -126,32 +128,77 @@ public class MLNetInferenceService : IDisposable
 
         try
         {
-            var input = new PhraseInput { Text = phrase };
+            // Utiliser la classe ModelInput générée par Model Builder
+            var input = new Vox_populi_test_model.VoxPopuli.ModelInput 
+            { 
+                Text = phrase,
+                Label = "" // Pas nécessaire pour l'inférence, mais requis par la classe
+            };
+
             var prediction = _phrasePredictionEngine.Predict(input);
 
             System.Diagnostics.Debug.WriteLine($"🧠 ML.NET Prédiction:");
-            System.Diagnostics.Debug.WriteLine($"   - Label: {prediction.PredictedLabel}");
+            System.Diagnostics.Debug.WriteLine($"   - Label prédit: {prediction.PredictedLabel}");
             System.Diagnostics.Debug.WriteLine($"   - Scores: [{string.Join(", ", prediction.Score.Select(s => s.ToString("F3")))}]");
 
-            // Pour un modèle de classification binaire, Score contient [probGauche, probDroite]
-            // On normalise entre -1 (gauche) et +1 (droite)
+            // Pour un modèle de classification binaire, Score contient [probClasse0, probClasse1]
+            // Il faut déterminer quelle classe est 0 et quelle classe est 1
             float normalizedScore;
 
             if (prediction.Score.Length >= 2)
             {
-                // Différence entre prob droite et prob gauche
-                // Score[0] = gauche, Score[1] = droite
-                normalizedScore = prediction.Score[1] - prediction.Score[0];
-                System.Diagnostics.Debug.WriteLine($"   - Score normalisé: {normalizedScore:F3} (gauche={prediction.Score[0]:F3}, droite={prediction.Score[1]:F3})");
+                // Stratégie simple : on regarde quel index a le score le plus élevé
+                // et on compare avec le label prédit pour comprendre l'ordre
+
+                int maxScoreIndex = prediction.Score[0] > prediction.Score[1] ? 0 : 1;
+                string predictedLabel = prediction.PredictedLabel.ToLowerInvariant();
+
+                // Déterminer si Score[0] correspond à gauche ou droite
+                bool score0IsLeft;
+
+                if (predictedLabel.Contains("left") || predictedLabel.Contains("gauche") || predictedLabel == "0")
+                {
+                    // Le label prédit est "gauche" ou "0"
+                    // Donc l'index avec le score max correspond à gauche
+                    score0IsLeft = (maxScoreIndex == 0);
+                }
+                else if (predictedLabel.Contains("right") || predictedLabel.Contains("droite") || predictedLabel == "1")
+                {
+                    // Le label prédit est "droite" ou "1"
+                    // Donc l'index avec le score max correspond à droite
+                    score0IsLeft = (maxScoreIndex != 0);
+                }
+                else
+                {
+                    // Fallback : on assume que 0 = gauche
+                    score0IsLeft = true;
+                }
+
+                // Normaliser entre -1 (gauche) et +1 (droite)
+                if (score0IsLeft)
+                {
+                    // Score[0] = gauche, Score[1] = droite
+                    normalizedScore = prediction.Score[1] - prediction.Score[0];
+                }
+                else
+                {
+                    // Score[0] = droite, Score[1] = gauche
+                    normalizedScore = prediction.Score[0] - prediction.Score[1];
+                }
+
+                System.Diagnostics.Debug.WriteLine($"   - Interprétation: Score[0]={prediction.Score[0]:F3} {(score0IsLeft ? "gauche" : "droite")}, Score[1]={prediction.Score[1]:F3} {(score0IsLeft ? "droite" : "gauche")}");
+                System.Diagnostics.Debug.WriteLine($"   - Score normalisé: {normalizedScore:F3} ({(normalizedScore < -0.15f ? "GAUCHE" : normalizedScore > 0.15f ? "DROITE" : "NEUTRE")})");
             }
             else
             {
                 // Fallback si structure inattendue
                 System.Diagnostics.Debug.WriteLine($"⚠️ Structure de Score inattendue, fallback sur label");
-                normalizedScore = prediction.PredictedLabel.ToLowerInvariant() switch
+                normalizedScore = prediction.PredictedLabel switch
                 {
-                    "right" or "droite" or "1" => 1.0f,
-                    "left" or "gauche" or "0" => -1.0f,
+                    "1" => 1.0f,
+                    "0" => -1.0f,
+                    var label when label.ToLowerInvariant().Contains("right") || label.ToLowerInvariant().Contains("droite") => 1.0f,
+                    var label when label.ToLowerInvariant().Contains("left") || label.ToLowerInvariant().Contains("gauche") => -1.0f,
                     _ => 0.0f
                 };
             }
@@ -161,6 +208,7 @@ public class MLNetInferenceService : IDisposable
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"❌ Erreur analyse phrase ML.NET: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Stack: {ex.StackTrace}");
             return SimulatePhraseAnalysis(phrase);
         }
     }
