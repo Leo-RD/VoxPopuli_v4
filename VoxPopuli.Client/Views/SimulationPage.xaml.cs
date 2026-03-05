@@ -5,10 +5,12 @@ using VoxPopuli.Client.ViewModels;
 namespace VoxPopuli.Client.Views;
 
 [QueryProperty(nameof(AgentCount), "AgentCount")]
+[QueryProperty(nameof(LeftPercentage), "LeftPercentage")]
 public partial class SimulationPage : ContentPage
 {
     private readonly SimulationViewModel _viewModel;
-    private int _agentCount = 500; // Valeur par défaut
+    private int _agentCount = 500;
+    private int _leftPercentage = 50;
 
     public int AgentCount
     {
@@ -16,10 +18,25 @@ public partial class SimulationPage : ContentPage
         set
         {
             _agentCount = value;
-            if (_viewModel != null)
-            {
-                _viewModel.ResetSimulationCommand.Execute((object)value);
-            }
+            ApplySimulationParameters();
+        }
+    }
+
+    public int LeftPercentage
+    {
+        get => _leftPercentage;
+        set
+        {
+            _leftPercentage = value;
+            ApplySimulationParameters();
+        }
+    }
+
+    private void ApplySimulationParameters()
+    {
+        if (_viewModel != null)
+        {
+            _viewModel.ResetSimulation(_agentCount, _leftPercentage);
         }
     }
 

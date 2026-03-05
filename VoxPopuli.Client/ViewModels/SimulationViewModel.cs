@@ -68,19 +68,20 @@ public partial class SimulationViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Réinitialise la simulation avec un nombre spécifié d'agents
+    /// Réinitialise la simulation avec un nombre d'agents et une répartition gauche/droite.
     /// </summary>
+    public void ResetSimulation(int count, int leftPercentage = 50)
+    {
+        InitializePopulation(count, leftPercentage);
+    }
+
     [RelayCommand]
     private void ResetSimulation(object parameter = null)
     {
-        int count = 500; // Par défaut
-
+        int count = 500;
         if (parameter is int paramCount)
-        {
             count = paramCount;
-        }
-
-        InitializePopulation(count);
+        InitializePopulation(count, 50);
     }
 
     /// <summary>
@@ -545,20 +546,20 @@ public partial class SimulationViewModel : BaseViewModel
         }
     }
 
-    private void InitializePopulation(int count)
+    private void InitializePopulation(int count, int leftPercentage = 50)
     {
         var random = new Random();
         Population.Clear();
         AgentCount = count;
 
+        int leftCount = (int)Math.Round(count * leftPercentage / 100.0);
+
         for (int i = 0; i < count; i++)
         {
-            // Direction initiale aléatoire
             float initialDirection = (float)(random.NextDouble() * Math.PI * 2);
 
-            // Assigner aléatoirement une orientation politique (50% gauche, 50% droite)
-            var politicalOrientation = random.Next(2) == 0 
-                ? PoliticalOrientation.Left 
+            var politicalOrientation = i < leftCount
+                ? PoliticalOrientation.Left
                 : PoliticalOrientation.Right;
 
             Population.Add(new AgentModel
@@ -575,16 +576,18 @@ public partial class SimulationViewModel : BaseViewModel
                 },
                 CurrentEmotion = EmotionalState.Neutral,
                 PoliticalOrientation = politicalOrientation,
-                IsHappy = true, // Par défaut content
-                RenderColor = SKColors.Green, // Par défaut vert
+                IsHappy = true,
+                RenderColor = SKColors.Green,
                 Direction = initialDirection,
-                MaxSpeed = HappyAgentSpeed, // Vitesse normale par défaut
-                Group = i < count / 2 ? "A" : "B" // Répartition 50/50 entre groupes A et B
+                MaxSpeed = HappyAgentSpeed,
+                Group = i < count / 2 ? "A" : "B"
             });
         }
 
+        // Mélanger pour éviter que tous les gauches soient d'un côté au départ
+        Population = Population.OrderBy(_ => random.Next()).ToList();
+
         System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents");
-        var leftCount = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Left);
-        System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount}, Droite: {count - leftCount}");
+        System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount} ({leftPercentage}%), Droite: {count - leftCount} ({100 - leftPercentage}%)");
     }
 }
