@@ -1,44 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Comment CommentText="VIEWS">
-    <Position X="6.896" Y="4.49" Height="0.312" Width="0.7" />
+    <Position X="9.225" Y="5.108" Height="0.312" Width="0.7" />
   </Comment>
   <Comment CommentText="VIEWMODELS">
-    <Position X="6.208" Y="2.052" Height="0.291" Width="1.044" />
+    <Position X="8.204" Y="2.02" Height="0.291" Width="1.044" />
   </Comment>
   <Comment CommentText="MODELS">
     <Position X="2.125" Y="2.729" Height="0.291" Width="0.7" />
   </Comment>
+  <Comment CommentText="SERVICES&#xD;&#xA;">
+    <Position X="2.298" Y="7.609" Height="0.354" Width="0.971" />
+  </Comment>
   <Class Name="VoxPopuli.Client.ViewModels.BaseViewModel">
-    <Position X="4.25" Y="0.75" Width="1.5" />
+    <Position X="6.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAgAAAAAQAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ViewModels\BaseViewModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="VoxPopuli.Client.ViewModels.ConfigurationViewModel">
-    <Position X="5.75" Y="2.75" Width="1.5" />
+    <Position X="8.25" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ViewModels\ConfigurationViewModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="VoxPopuli.Client.ViewModels.SimulationViewModel">
-    <Position X="7.5" Y="1" Width="1.5" />
+    <Position X="12.25" Y="1" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAAAAIAAAAAAABAAAAIAAAAQAAAAAAAAA=</HashCode>
+      <HashCode>IEECAAKCGICAAABIgIBOmABBAJAEKKHAARAEAMAAwAE=</HashCode>
       <FileName>ViewModels\SimulationViewModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="VoxPopuli.Client.Views.SimulationPage">
-    <Position X="7.5" Y="4.25" Width="1.75" />
+    <Position X="14" Y="1" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAQAAAAAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAABAAAAAQAIAAACAAAACAAAAAAAAAAAEQIAI=</HashCode>
       <FileName>Views\SimulationPage.xaml.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="VoxPopuli.Client.Views.ConfigurationPage">
-    <Position X="5.25" Y="4.25" Width="2" />
+    <Position X="9.75" Y="5.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Views\ConfigurationPage.xaml.cs</FileName>
@@ -47,15 +50,65 @@
   <Class Name="VoxPopuli.Client.Models.AgentModel">
     <Position X="0.5" Y="1" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAQAAAAIAAAAAAAAAAAIAAAAAAAAAAYAA=</HashCode>
+      <HashCode>EAACAEAAAAAAQAAAAKAEAAAABAAAAJAAAAAAAQAEYAA=</HashCode>
       <FileName>Models\AgentModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="VoxPopuli.Client.MauiProgram">
-    <Position X="0.5" Y="4.25" Width="1.5" />
+    <Position X="0.5" Y="5.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>MauiProgram.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.ViewModels.StartPageViewModel">
+    <Position X="5.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEIACAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\StartPageViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Services.PoliticalPhraseAnalyzer">
+    <Position X="1.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IABEBAAAAAAAAAAAAAIgAAAAAEABAIAAAAAAAIAAAAA=</HashCode>
+      <FileName>Services\PoliticalPhraseAnalyzer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Services.MLNetInferenceService">
+    <Position X="3.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAQADAAEAAAAgAAAACAAIAAAYAAAAAAICABAAg=</HashCode>
+      <FileName>Services\MLNetInferenceService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="VoxPopuli.Client.Models.OpinionInput">
+    <Position X="3.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\OpinionInput.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Models.OpinionOutput">
+    <Position X="3.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\OpinionOutput.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Models.PhraseInput">
+    <Position X="2.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Models\PhraseInput.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="VoxPopuli.Client.Models.PhraseOutput">
+    <Position X="2.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Models\PhraseOutput.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Enum Name="VoxPopuli.Client.Models.EmotionalState">

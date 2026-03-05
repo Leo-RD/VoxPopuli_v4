@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--                   LIQUID GLASS DESIGN SYSTEM                 -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+
+    <!-- 🎨 COLOR PALETTE -->
+    <Color x:Key="GlassBackground">#F0F4F8</Color>
+    <Color x:Key="GlassPrimary">#667EEA</Color>
+    <Color x:Key="GlassSecondary">#764BA2</Color>
+    <Color x:Key="GlassAccent">#F093FB</Color>
+    <Color x:Key="GlassSuccess">#4ECDC4</Color>
+    <Color x:Key="GlassWarning">#FFE66D</Color>
+    <Color x:Key="GlassDanger">#FF6B9D</Color>
+    <Color x:Key="GlassText">#2D3748</Color>
+    <Color x:Key="GlassTextLight">#718096</Color>
+
+    <!-- 🌈 GRADIENT BRUSHES -->
+    <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#667EEA" Offset="0.0"/>
+        <GradientStop Color="#764BA2" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SuccessGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#4ECDC4" Offset="0.0"/>
+        <GradientStop Color="#44A08D" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="DangerGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FF6B9D" Offset="0.0"/>
+        <GradientStop Color="#C44569" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="WarningGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FFE66D" Offset="0.0"/>
+        <GradientStop Color="#FDBB2D" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="InfoGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#A8EDEA" Offset="0.0"/>
+        <GradientStop Color="#667EEA" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#E0E7FF" Offset="0.0"/>
+        <GradientStop Color="#FEE2F8" Offset="0.5"/>
+        <GradientStop Color="#DBEAFE" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- 💎 GLASS CARD STYLE -->
+    <Style x:Key="GlassCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#F5FFFFFF"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Stroke">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#60FFFFFF" Offset="0.0"/>
+                    <GradientStop Color="#40FFFFFF" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#40667EEA" Offset="0,8" Radius="24" Opacity="0.3"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="24"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 🔮 GLASS BUTTON STYLE -->
+    <Style x:Key="GlassButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#E5FFFFFF"/>
+        <Setter Property="TextColor" Value="{StaticResource GlassText}"/>
+        <Setter Property="FontFamily" Value="AvantGardeDemi"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="20,12"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#30667EEA" Offset="0,4" Radius="12" Opacity="0.3"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ✨ GLASS BUTTON PRIMARY -->
+    <Style x:Key="GlassButtonPrimary" TargetType="Button" BasedOn="{StaticResource GlassButton}">
+        <Setter Property="Background" Value="{StaticResource PrimaryGradient}"/>
+        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#50667EEA" Offset="0,6" Radius="16" Opacity="0.4"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 🌟 GLASS BUTTON SUCCESS -->
+    <Style x:Key="GlassButtonSuccess" TargetType="Button" BasedOn="{StaticResource GlassButton}">
+        <Setter Property="Background" Value="{StaticResource SuccessGradient}"/>
+        <Setter Property="TextColor" Value="White"/>
+    </Style>
+
+    <!-- 🔥 GLASS BUTTON DANGER -->
+    <Style x:Key="GlassButtonDanger" TargetType="Button" BasedOn="{StaticResource GlassButton}">
+        <Setter Property="Background" Value="{StaticResource DangerGradient}"/>
+        <Setter Property="TextColor" Value="White"/>
+    </Style>
+
+    <!-- ⚡ GLASS BUTTON WARNING -->
+    <Style x:Key="GlassButtonWarning" TargetType="Button" BasedOn="{StaticResource GlassButton}">
+        <Setter Property="Background" Value="{StaticResource WarningGradient}"/>
+        <Setter Property="TextColor" Value="{StaticResource GlassText}"/>
+    </Style>
+
+    <!-- 💬 GLASS ENTRY STYLE -->
+    <Style x:Key="GlassEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="#F0FFFFFF"/>
+        <Setter Property="TextColor" Value="{StaticResource GlassText}"/>
+        <Setter Property="PlaceholderColor" Value="{StaticResource GlassTextLight}"/>
+        <Setter Property="FontFamily" Value="AvantGardeBook"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="HeightRequest" Value="48"/>
+    </Style>
+
+    <!-- 🏷️ GLASS LABEL TITLE -->
+    <Style x:Key="GlassTitleLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="AvantGardeBold"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="TextColor" Value="{StaticResource GlassText}"/>
+    </Style>
+
+    <!-- 📝 GLASS LABEL SUBTITLE -->
+    <Style x:Key="GlassSubtitleLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="AvantGardeDemi"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="TextColor" Value="{StaticResource GlassText}"/>
+    </Style>
+
+    <!-- 📄 GLASS LABEL BODY -->
+    <Style x:Key="GlassBodyLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="AvantGardeBook"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="TextColor" Value="{StaticResource GlassTextLight}"/>
+    </Style>
+
+    <!-- 🎯 GLASS BADGE STYLE -->
+    <Style x:Key="GlassBadge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#F0FFFFFF"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Stroke" Value="#30667EEA"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="12"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 🔔 GLASS INFO PANEL -->
+    <Style x:Key="GlassInfoPanel" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#E5F3FF"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Stroke" Value="#60667EEA"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#30667EEA" Offset="0,4" Radius="12" Opacity="0.2"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="16"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ✅ GLASS SUCCESS PANEL -->
+    <Style x:Key="GlassSuccessPanel" TargetType="Border" BasedOn="{StaticResource GlassInfoPanel}">
+        <Setter Property="BackgroundColor" Value="#E0F9F7"/>
+        <Setter Property="Stroke" Value="#604ECDC4"/>
+    </Style>
+
+    <!-- ⚠️ GLASS WARNING PANEL -->
+    <Style x:Key="GlassWarningPanel" TargetType="Border" BasedOn="{StaticResource GlassInfoPanel}">
+        <Setter Property="BackgroundColor" Value="#FFF9E6"/>
+        <Setter Property="Stroke" Value="#60FFE66D"/>
+    </Style>
+
+    <!-- 🎨 GLASS STATS CARD -->
+    <Style x:Key="GlassStatsCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#F8FFFFFF"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#20667EEA" Offset="0,2" Radius="8" Opacity="0.15"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="16"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
