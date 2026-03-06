@@ -4,7 +4,7 @@
              xmlns:converters="clr-namespace:VoxPopuli.Client.Converters"
              x:Class="VoxPopuli.Client.Views.StartPage"
              Title="VoxPopuli 4.0 - Configuration"
-             BackgroundColor="#2C3E50">
+             BackgroundColor="#0F1923">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -18,8 +18,9 @@
         <!-- Configuration Panel -->
         <Border Grid.Row="0"
                 Margin="0,60,0,40"
-                BackgroundColor="White" 
-                StrokeThickness="0"
+                BackgroundColor="#1A2535" 
+                StrokeThickness="1"
+                Stroke="#2C3E50"
                 Padding="40"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
@@ -33,7 +34,7 @@
                 <!-- Title -->
                 <Label FontSize="24" 
                        FontFamily="AvantGardeDemi"
-                       TextColor="#2C3E50"
+                       TextColor="#ECF0F1"
                        HorizontalOptions="Center">
                     <Label.FormattedText>
                         <FormattedString>
@@ -47,7 +48,7 @@
                 <VerticalStackLayout Spacing="15">
                     <Label FontSize="18" 
                            FontFamily="AvantGardeDemi"
-                           TextColor="#34495E">
+                           TextColor="#B0BEC5">
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="👤 " FontSize="18"/>
@@ -81,7 +82,7 @@
                 <VerticalStackLayout Spacing="15">
                     <Label FontSize="18" 
                            FontFamily="AvantGardeDemi"
-                           TextColor="#34495E">
+                           TextColor="#B0BEC5">
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="🏛️ " FontSize="18"/>
@@ -153,7 +154,7 @@
                 <VerticalStackLayout Spacing="10">
                     <Label FontSize="14" 
                            FontFamily="AvantGardeDemi"
-                           TextColor="#34495E">
+                           TextColor="#B0BEC5">
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="⚡ " FontSize="14"/>
@@ -182,20 +183,20 @@
                 </VerticalStackLayout>
 
                 <!-- Performance Warning -->
-                <Border BackgroundColor="#FFF3CD" 
+                <Border BackgroundColor="#2E2510" 
                         Padding="15" 
                         StrokeThickness="1" 
-                        Stroke="#FFC107"
+                        Stroke="#F39C12"
                         IsVisible="{Binding SelectedAgentCount, Converter={StaticResource GreaterThanConverter}, ConverterParameter=700}">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="6"/>
                     </Border.StrokeShape>
                     <HorizontalStackLayout Spacing="10">
-                        <Label Text="⚠" FontSize="20" VerticalOptions="Center"/>
+                        <Label Text="⚠" FontSize="20" VerticalOptions="Center" TextColor="#F39C12"/>
                         <Label Text="Attention : Un grand nombre d'agents peut ralentir la simulation" 
                                FontFamily="AvantGardeBook"
                                FontSize="12" 
-                               TextColor="#856404"
+                               TextColor="#F5C342"
                                VerticalOptions="Center"
                                LineBreakMode="WordWrap"
                                MaximumWidthRequest="450"/>

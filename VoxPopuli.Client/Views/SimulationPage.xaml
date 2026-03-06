@@ -10,12 +10,12 @@
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
     </ContentPage.Resources>
 
-    <!-- 🌈 LIQUID GLASS BACKGROUND -->
+    <!-- 🌑 DARK BACKGROUND -->
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#E0E7FF" Offset="0.0"/>
-            <GradientStop Color="#FEE2F8" Offset="0.5"/>
-            <GradientStop Color="#DBEAFE" Offset="1.0"/>
+            <GradientStop Color="#0F1923" Offset="0.0"/>
+            <GradientStop Color="#1A2535" Offset="0.5"/>
+            <GradientStop Color="#0F1923" Offset="1.0"/>
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -28,13 +28,14 @@
 
             <Grid RowDefinitions="Auto, *">
 
-                <!-- ✨ HEADER BAR (LIQUID GLASS) -->
+                <!-- ✨ HEADER BAR (DARK GLASS) -->
                 <Border Grid.Row="0" 
                         Padding="20,16"
-                        StrokeThickness="0"
-                        BackgroundColor="#F0FFFFFF">
+                        StrokeThickness="1"
+                        Stroke="#2C3E50"
+                        BackgroundColor="#1A2535">
                     <Border.Shadow>
-                        <Shadow Brush="#20667EEA" Offset="0,2" Radius="8" Opacity="0.2"/>
+                        <Shadow Brush="#40000000" Offset="0,2" Radius="8" Opacity="0.4"/>
                     </Border.Shadow>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="24,24,0,0"/>
@@ -143,9 +144,9 @@
                                         Margin="16"
                                         VerticalOptions="Start" 
                                         HorizontalOptions="Start"
-                                        BackgroundColor="#F5FFFFFF"
+                                        BackgroundColor="#1E2D40"
                                         StrokeThickness="1"
-                                        Stroke="#40FFFFFF">
+                                        Stroke="#3D5A73">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="16"/>
                                     </Border.StrokeShape>
@@ -236,10 +237,10 @@
                         </Border>
 
                         <!-- 📈 STATS FOOTER (GLASS) -->
-                        <Border BackgroundColor="#F5FFFFFF" 
+                        <Border BackgroundColor="#1A2535" 
                                 Padding="16,12"
                                 StrokeThickness="1"
-                                Stroke="#30667EEA">
+                                Stroke="#2C3E50">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="16"/>
                             </Border.StrokeShape>
@@ -342,10 +343,10 @@
 
                                     <!-- MODE PHRASE -->
                                     <VerticalStackLayout Spacing="10" IsVisible="{Binding IsSpeechMode, Converter={StaticResource InverseBoolConverter}}">
-                                        <Border BackgroundColor="#F8FFFFFF"
+                                        <Border BackgroundColor="#253545"
                                                 Padding="12,4"
                                                 StrokeThickness="1"
-                                                Stroke="#30667EEA">
+                                                Stroke="#3D5A73">
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="12"/>
                                             </Border.StrokeShape>
@@ -363,18 +364,18 @@
 
                                     <!-- MODE DISCOURS -->
                                     <VerticalStackLayout Spacing="10" IsVisible="{Binding IsSpeechMode}">
-                                        <Border BackgroundColor="#F8FFFFFF"
+                                        <Border BackgroundColor="#253545"
                                                 Padding="12,8"
                                                 StrokeThickness="1"
-                                                Stroke="#30667EEA">
+                                                Stroke="#3D5A73">
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="12"/>
                                             </Border.StrokeShape>
                                             <Editor Placeholder="Collez ici un discours politique complet..."
                                                     Text="{Binding SpeechText}"
                                                     BackgroundColor="Transparent"
-                                                    TextColor="#2C3E50"
-                                                    PlaceholderColor="#95A5A6"
+                                                    TextColor="#ECF0F1"
+                                                    PlaceholderColor="#7F8C8D"
                                                     FontFamily="AvantGardeBook"
                                                     FontSize="13"
                                                     HeightRequest="120"
@@ -386,7 +387,7 @@
 
                                         <!-- Résultats du discours -->
                                         <Border IsVisible="{Binding HasSpeechResult}"
-                                                BackgroundColor="#F0FFF4"
+                                                BackgroundColor="#1A3A2A"
                                                 Padding="14"
                                                 StrokeThickness="1"
                                                 Stroke="#2ECC71">
@@ -396,7 +397,7 @@
                                             <Label Text="{Binding SpeechResultSummary}"
                                                    FontFamily="AvantGardeBook"
                                                    FontSize="13"
-                                                   TextColor="#2C3E50"
+                                                   TextColor="#ECF0F1"
                                                    LineBreakMode="WordWrap"/>
                                         </Border>
                                     </VerticalStackLayout>
