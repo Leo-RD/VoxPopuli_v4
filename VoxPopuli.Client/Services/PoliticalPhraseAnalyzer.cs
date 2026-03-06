@@ -177,11 +177,83 @@ public class PoliticalPhraseAnalyzer
         // Si la phrase est de droite (score positif) et l'agent est de droite → content
         if (orientation == PoliticalOrientation.Left)
         {
-            return phraseScore < -NeutralThreshold; // Content si phrase clairement de gauche
+            return phraseScore < -NeutralThreshold;
         }
         else
         {
-            return phraseScore > NeutralThreshold; // Content si phrase clairement de droite
+            return phraseScore > NeutralThreshold;
         }
+    }
+
+    /// <summary>
+    /// Analyse un discours complet en le découpant en phrases individuelles.
+    /// Retourne un résultat agrégé avec l'orientation globale.
+    /// </summary>
+    public SpeechAnalysisResult AnalyzeSpeech(string speechText)
+    {
+        var result = new SpeechAnalysisResult();
+
+        var sentences = SplitIntoSentences(speechText);
+        if (sentences.Count == 0)
+            return result;
+
+        float totalScore = 0f;
+
+        foreach (var sentence in sentences)
+        {
+            float score = AnalyzePhrase(sentence);
+            totalScore += score;
+
+            string orientation;
+            if (score < -NeutralThreshold)
+            {
+                orientation = "Gauche";
+                result.LeftSentences++;
+            }
+            else if (score > NeutralThreshold)
+            {
+                orientation = "Droite";
+                result.RightSentences++;
+            }
+            else
+            {
+                orientation = "Neutre";
+                result.NeutralSentences++;
+            }
+
+            result.SentenceDetails.Add((sentence, score, orientation));
+            System.Diagnostics.Debug.WriteLine($"   [{orientation}] {sentence.Substring(0, Math.Min(50, sentence.Length))}... → {score:F2}");
+        }
+
+        result.TotalSentences = sentences.Count;
+        result.AverageScore = totalScore / sentences.Count;
+
+        if (result.AverageScore < -NeutralThreshold)
+            result.GlobalOrientation = "Gauche";
+        else if (result.AverageScore > NeutralThreshold)
+            result.GlobalOrientation = "Droite";
+        else
+            result.GlobalOrientation = "Neutre";
+
+        System.Diagnostics.Debug.WriteLine($"📊 Discours analysé : {result.TotalSentences} phrases, Score moyen={result.AverageScore:F2}, Orientation={result.GlobalOrientation}");
+        System.Diagnostics.Debug.WriteLine($"   Gauche={result.LeftSentences}, Droite={result.RightSentences}, Neutre={result.NeutralSentences}");
+
+        return result;
+    }
+
+    /// <summary>
+    /// Découpe un texte en phrases individuelles.
+    /// </summary>
+    private static List<string> SplitIntoSentences(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return new List<string>();
+
+        var sentences = text.Split(new[] { '.', '!', '?', ';', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(s => s.Trim())
+                            .Where(s => s.Length > 8) // Ignorer les fragments trop courts
+                            .ToList();
+
+        return sentences;
     }
 }

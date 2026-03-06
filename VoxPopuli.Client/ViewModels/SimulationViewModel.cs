@@ -57,6 +57,22 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private string selectedAgentInfo = "";
 
+    // ===== MODE DISCOURS =====
+    [ObservableProperty]
+    private bool isSpeechMode = false;
+
+    [ObservableProperty]
+    private string speechModeButtonText = "📄 Mode Discours";
+
+    [ObservableProperty]
+    private string speechText = "";
+
+    [ObservableProperty]
+    private string speechResultSummary = "";
+
+    [ObservableProperty]
+    private bool hasSpeechResult = false;
+
     public SimulationViewModel(MLNetInferenceService mlNetService, PoliticalPhraseAnalyzer phraseAnalyzer)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
@@ -174,6 +190,92 @@ public partial class SimulationViewModel : BaseViewModel
         }
 
         System.Diagnostics.Debug.WriteLine($"   Résultat: {happyCount} contents (verts), {unhappyCount} pas contents (rouges)");
+    }
+
+    /// <summary>
+    /// Bascule entre le mode phrase et le mode discours.
+    /// </summary>
+    [RelayCommand]
+    private void ToggleSpeechMode()
+    {
+        IsSpeechMode = !IsSpeechMode;
+        SpeechModeButtonText = IsSpeechMode ? "💬 Mode Phrase" : "📄 Mode Discours";
+    }
+
+    /// <summary>
+    /// Analyse un discours complet et met à jour les agents selon l'orientation globale.
+    /// </summary>
+    [RelayCommand]
+    private void AnalyzeSpeech()
+    {
+        if (string.IsNullOrWhiteSpace(SpeechText))
+        {
+            System.Diagnostics.Debug.WriteLine("⚠️ Aucun discours saisi");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine($"📜 Début de l'analyse du discours ({SpeechText.Length} caractères)...");
+
+        var result = _phraseAnalyzer.AnalyzeSpeech(SpeechText);
+
+        if (result.TotalSentences == 0)
+        {
+            SpeechResultSummary = "⚠️ Aucune phrase détectée dans le discours.";
+            HasSpeechResult = true;
+            return;
+        }
+
+        // Appliquer le résultat global aux agents (comme une phrase analysée)
+        CurrentPoliticalPhrase = $"[Discours] {result.GlobalOrientation} (moy. {result.AverageScore:+0.00;-0.00})";
+
+        int happyCount = 0;
+        int unhappyCount = 0;
+
+        foreach (var agent in Population)
+        {
+            bool isHappy = result.GlobalOrientation switch
+            {
+                "Gauche"  => agent.PoliticalOrientation == PoliticalOrientation.Left,
+                "Droite"  => agent.PoliticalOrientation == PoliticalOrientation.Right,
+                _         => true // Neutre → tout le monde content
+            };
+
+            agent.IsHappy = isHappy;
+
+            if (isHappy)
+            {
+                agent.RenderColor = SKColors.Green;
+                agent.MaxSpeed = HappyAgentSpeed;
+                agent.CurrentEmotion = EmotionalState.Happy;
+                happyCount++;
+            }
+            else
+            {
+                agent.RenderColor = SKColors.Red;
+                agent.MaxSpeed = UnhappyAgentSpeed;
+                agent.CurrentEmotion = EmotionalState.Angry;
+                unhappyCount++;
+            }
+        }
+
+        // Construire le résumé
+        string orientationIcon = result.GlobalOrientation switch
+        {
+            "Gauche" => "🔴",
+            "Droite" => "🔵",
+            _        => "⚪"
+        };
+
+        SpeechResultSummary =
+            $"{orientationIcon} Orientation : {result.GlobalOrientation}\n" +
+            $"📊 {result.TotalSentences} phrases analysées\n" +
+            $"🔴 Gauche : {result.LeftSentences}  |  🔵 Droite : {result.RightSentences}  |  ⚪ Neutre : {result.NeutralSentences}\n" +
+            $"📈 Score moyen : {result.AverageScore:+0.00;-0.00}\n" +
+            $"😊 Contents : {happyCount}  |  😠 Mécontents : {unhappyCount}";
+
+        HasSpeechResult = true;
+
+        System.Diagnostics.Debug.WriteLine($"✅ Discours analysé : {result.GlobalOrientation}, {happyCount} contents, {unhappyCount} pas contents");
     }
 
     /// <summary>
@@ -437,8 +539,8 @@ public partial class SimulationViewModel : BaseViewModel
     {
         const float perceptionRadius = 80f; // Distance de perception des autres agents
         const float separationRadius = 20f; // Distance minimale entre agents
-        const float cohesionStrength = 2.0f; // Force d'attraction vers les alliés (même état émotionnel)
-        const float repulsionStrength = 3.0f; // Force de répulsion des adversaires (état émotionnel opposé)
+        const float cohesionStrength = 1.7f; // Force d'attraction vers les alliés (même état émotionnel)
+        const float repulsionStrength = 4.0f; // Force de répulsion des adversaires (état émotionnel opposé)
         const float separationStrength = 4.0f; // Force de séparation pour éviter les collisions
 
         float cohesionX = 0f;
