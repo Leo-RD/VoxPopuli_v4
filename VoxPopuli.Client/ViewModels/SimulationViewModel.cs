@@ -13,6 +13,25 @@ public partial class SimulationViewModel : BaseViewModel
     private readonly PoliticalPhraseAnalyzer _phraseAnalyzer;
     private readonly Random _random = new Random();
 
+    // Pool persistant d'agents : conserve leur identité (Nom, Id) entre les simulations
+    private readonly List<AgentModel> _agentPool = new();
+
+    private static readonly string[] _firstNames =
+    [
+        "Alice", "Bruno", "Clara", "David", "Emma", "Félix", "Gaëlle", "Hugo",
+        "Inès", "Julien", "Karine", "Lucas", "Marie", "Nathan", "Olivia",
+        "Paul", "Quentin", "Rosa", "Samuel", "Théa", "Ugo", "Valère",
+        "Wendy", "Xavier", "Yasmine", "Zoé"
+    ];
+
+    private static readonly string[] _lastNames =
+    [
+        "Martin", "Bernard", "Dupont", "Moreau", "Lemaire", "Lefebvre",
+        "Garcia", "Roux", "Fournier", "Girard", "Bonnet", "Lambert",
+        "Fontaine", "Rousseau", "Vincent", "Leroy", "Chevalier", "Morin",
+        "Simon", "Laurent", "Michel", "Blanc", "Guerin", "Boyer"
+    ];
+
     // Constantes pour la simulation
     private const float WorldWidth = 1000f;
     private const float WorldHeight = 1000f;
@@ -333,7 +352,7 @@ public partial class SimulationViewModel : BaseViewModel
             SelectedAgent = closestAgent;
             IsAgentSelected = true;
             UpdateSelectedAgentInfo();
-            System.Diagnostics.Debug.WriteLine($"🎯 Agent sélectionné: {closestAgent.Id}");
+            System.Diagnostics.Debug.WriteLine($"🎯 Agent sélectionné: {closestAgent.Name} ({closestAgent.Id})");
         }
         else
         {
@@ -360,7 +379,7 @@ public partial class SimulationViewModel : BaseViewModel
         var speed = $"{SelectedAgent.MaxSpeed:F1} px/frame";
         var position = $"({SelectedAgent.X:F0}, {SelectedAgent.Y:F0})";
 
-        SelectedAgentInfo = $@"🎯 Agent Sélectionné
+        SelectedAgentInfo = $@"🎯 {SelectedAgent.Name}
 
 📍 Position: {position}
 🏛️ Orientation: {orientation}
@@ -368,7 +387,7 @@ public partial class SimulationViewModel : BaseViewModel
 ⚡ Vitesse: {speed}
 🎨 Groupe: {SelectedAgent.Group}";
 
-        System.Diagnostics.Debug.WriteLine($"📊 Info agent mise à jour: {orientation}, {emotion}");
+        System.Diagnostics.Debug.WriteLine($"📊 Info agent mise à jour: {SelectedAgent.Name} | {orientation}, {emotion}");
     }
 
     /// <summary>
@@ -651,45 +670,58 @@ public partial class SimulationViewModel : BaseViewModel
     private void InitializePopulation(int count, int leftPercentage = 50)
     {
         var random = new Random();
-        Population.Clear();
         AgentCount = count;
 
         int leftCount = (int)Math.Round(count * leftPercentage / 100.0);
 
+        // Compléter le pool si besoin (les agents existants conservent leur Nom et Id)
+        while (_agentPool.Count < count)
+        {
+            _agentPool.Add(new AgentModel
+            {
+                Name = $"{_firstNames[random.Next(_firstNames.Length)]} {_lastNames[random.Next(_lastNames.Length)]}"
+            });
+        }
+
+        // Prendre les N premiers agents du pool
+        Population = _agentPool.Take(count).ToList();
+
+        // Réinitialiser uniquement l'état transitoire (position, vitesse, émotion)
+        // L'identité (Name, Id) est conservée
         for (int i = 0; i < count; i++)
         {
+            var agent = Population[i];
             float initialDirection = (float)(random.NextDouble() * Math.PI * 2);
 
-            var politicalOrientation = i < leftCount
+            agent.X = random.Next(0, 1000);
+            agent.Y = random.Next(0, 1000);
+            agent.VelocityX = 0f;
+            agent.VelocityY = 0f;
+            agent.Direction = initialDirection;
+            agent.OpinionVector = new float[5]
+            {
+                (float)random.NextDouble(),
+                (float)random.NextDouble(),
+                (float)random.NextDouble(),
+                (float)random.NextDouble(),
+                (float)random.NextDouble()
+            };
+            agent.CurrentEmotion = EmotionalState.Neutral;
+            agent.IsHappy = true;
+            agent.IsInfluenced = false;
+            agent.LastInfluenceTime = null;
+            agent.RenderColor = SKColors.Green;
+            agent.MaxSpeed = HappyAgentSpeed;
+            agent.PoliticalOrientation = i < leftCount
                 ? PoliticalOrientation.Left
                 : PoliticalOrientation.Right;
-
-            Population.Add(new AgentModel
-            {
-                X = random.Next(0, 1000),
-                Y = random.Next(0, 1000),
-                OpinionVector = new float[5]
-                {
-                    (float)random.NextDouble(),
-                    (float)random.NextDouble(),
-                    (float)random.NextDouble(),
-                    (float)random.NextDouble(),
-                    (float)random.NextDouble()
-                },
-                CurrentEmotion = EmotionalState.Neutral,
-                PoliticalOrientation = politicalOrientation,
-                IsHappy = true,
-                RenderColor = SKColors.Green,
-                Direction = initialDirection,
-                MaxSpeed = HappyAgentSpeed,
-                Group = i < count / 2 ? "A" : "B"
-            });
+            agent.Group = i < count / 2 ? "A" : "B";
         }
 
         // Mélanger pour éviter que tous les gauches soient d'un côté au départ
         Population = Population.OrderBy(_ => random.Next()).ToList();
 
-        System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents");
+        System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents ({_agentPool.Count} dans le pool)");
         System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount} ({leftPercentage}%), Droite: {count - leftCount} ({100 - leftPercentage}%)");
     }
 }

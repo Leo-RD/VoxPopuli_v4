@@ -19,6 +19,11 @@ public class AgentModel
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>
+    /// Nom unique de l'agent, généré aléatoirement à la création et conservé entre les simulations.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
     /// Vecteur normalisé représentant l'adhésion aux thèmes politiques.
     /// Format optimisé pour l'entrée du modèle ONNX (TensorFloat).
     /// </summary>
