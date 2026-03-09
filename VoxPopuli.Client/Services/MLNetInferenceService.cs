@@ -1,4 +1,5 @@
 using Microsoft.ML;
+using Microsoft.ML.Data;
 using VoxPopuli.Client.Models;
 using Vox_populi_test_model;
 
@@ -13,10 +14,24 @@ public class MLNetInferenceService : IDisposable
     private MLContext? _mlContext;
     private ITransformer? _model;
     private PredictionEngine<OpinionInput, OpinionOutput>? _opinionPredictionEngine;
-    private PredictionEngine<Vox_populi_test_model.VoxPopuli.ModelInput, Vox_populi_test_model.VoxPopuli.ModelOutput>? _phrasePredictionEngine;
+    private PredictionEngine<Vox_populi_test_model.VoxPopuli.ModelInput, MinimalPhraseOutput>? _phrasePredictionEngine;
     private bool _isInitialized;
     private bool _useDemoMode = true;
     private bool _supportsTextInput = false;
+
+    /// <summary>
+    /// Classe de sortie minimale pour le moteur de prédiction de phrases.
+    /// N'inclut que les colonnes dont on a besoin, évitant le conflit de type
+    /// sur la colonne 'Text' (String vs float[]) du schema du modèle.
+    /// </summary>
+    private sealed class MinimalPhraseOutput
+    {
+        [ColumnName("PredictedLabel")]
+        public string PredictedLabel { get; set; } = string.Empty;
+
+        [ColumnName("Score")]
+        public float[] Score { get; set; } = [];
+    }
 
     public MLNetInferenceService()
     {
@@ -72,7 +87,7 @@ public class MLNetInferenceService : IDisposable
                 // Essayer de créer un prediction engine pour les phrases (texte)
                 try
                 {
-                    _phrasePredictionEngine = _mlContext.Model.CreatePredictionEngine<Vox_populi_test_model.VoxPopuli.ModelInput, Vox_populi_test_model.VoxPopuli.ModelOutput>(_model);
+                    _phrasePredictionEngine = _mlContext.Model.CreatePredictionEngine<Vox_populi_test_model.VoxPopuli.ModelInput, MinimalPhraseOutput>(_model);
                     _supportsTextInput = true;
                     System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Modèle d'analyse de PHRASES chargé!");
                 }
@@ -80,10 +95,7 @@ public class MLNetInferenceService : IDisposable
                 {
                     System.Diagnostics.Debug.WriteLine($"⚠️ ML.NET: Le modèle ne supporte pas l'analyse de phrases (texte)");
                     System.Diagnostics.Debug.WriteLine($"   Erreur: {ex.Message}");
-                    // Fallback sur OpinionVector
-                    _opinionPredictionEngine = _mlContext.Model.CreatePredictionEngine<OpinionInput, OpinionOutput>(_model);
                     _supportsTextInput = false;
-                    System.Diagnostics.Debug.WriteLine($"✅ ML.NET: Modèle de VECTEURS D'OPINION chargé");
                 }
 
                 _useDemoMode = false;
