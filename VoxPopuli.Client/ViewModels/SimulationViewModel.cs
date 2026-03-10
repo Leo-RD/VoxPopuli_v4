@@ -374,7 +374,10 @@ public partial class SimulationViewModel : BaseViewModel
             IsAgentSelected = true;
             UpdateSelectedAgentInfo();
             System.Diagnostics.Debug.WriteLine($"🎯 Agent sélectionné: {closestAgent.Name} ({closestAgent.Id})");
-            _ = _mqttService.TryPublishAgentAsync(closestAgent);
+            _ = _mqttService.TryPublishAgentAsync(
+                closestAgent,
+                phrase: CurrentPoliticalPhrase,
+                discoursSummary: IsSpeechMode ? SpeechResultSummary : string.Empty);
         }
         else
         {

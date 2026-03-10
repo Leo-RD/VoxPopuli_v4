@@ -31,7 +31,9 @@ public class MqttAgentService : IAsyncDisposable
         bool IsHappy,
         bool IsInfluenced,
         string Emotion,
-        float[] OpinionVector
+        float[] OpinionVector,
+        string Phrase,
+        string DiscoursSummary
     );
 
     /// <summary>Déclenché à chaque message reçu de la Raspberry (payload brut).</summary>
@@ -79,22 +81,26 @@ public class MqttAgentService : IAsyncDisposable
     // ── Publication ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Publie les données d'un agent unique vers la Raspberry (topic vox/vers/ras).
+    /// Publie les données d'un agent + le contexte politique actuel (phrase ou discours).
     /// Appelé au clic sur un agent dans le canvas.
     /// </summary>
-    public async Task TryPublishAgentAsync(AgentModel agent, CancellationToken ct = default)
+    public async Task TryPublishAgentAsync(
+        AgentModel agent,
+        string phrase,
+        string discoursSummary,
+        CancellationToken ct = default)
     {
         if (!_client.IsConnected) return;
         try
         {
-            var payload = JsonSerializer.SerializeToUtf8Bytes(ToDto(agent));
+            var payload = JsonSerializer.SerializeToUtf8Bytes(ToDto(agent, phrase, discoursSummary));
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(TopicToRaspberry)
                 .WithPayload(payload)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .Build();
             await _client.PublishAsync(message, ct);
-            System.Diagnostics.Debug.WriteLine($"📤 MQTT -> {agent.Name} envoyé sur '{TopicToRaspberry}'");
+            System.Diagnostics.Debug.WriteLine($"📤 MQTT -> {agent.Name} | phrase: '{phrase}'");
         }
         catch (Exception ex)
         {
@@ -114,11 +120,13 @@ public class MqttAgentService : IAsyncDisposable
 
     // ── Sérialisation ─────────────────────────────────────────────────────────
 
-    private static AgentStateDto ToDto(AgentModel a) => new(
+    private static AgentStateDto ToDto(AgentModel a, string phrase, string discoursSummary) => new(
         a.Id, a.Name, a.Group, a.X, a.Y,
         a.IsHappy, a.IsInfluenced,
         a.CurrentEmotion.ToString(),
-        a.OpinionVector
+        a.OpinionVector,
+        phrase,
+        discoursSummary
     );
 
     public async ValueTask DisposeAsync()
