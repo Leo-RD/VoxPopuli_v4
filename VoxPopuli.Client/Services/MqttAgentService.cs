@@ -79,31 +79,22 @@ public class MqttAgentService : IAsyncDisposable
     // ── Publication ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Publie le snapshot complet des agents vers la Raspberry (topic vox/vers/ras).
+    /// Publie les données d'un agent unique vers la Raspberry (topic vox/vers/ras).
+    /// Appelé au clic sur un agent dans le canvas.
     /// </summary>
-    public Task PublishSnapshotAsync(IEnumerable<AgentModel> agents, CancellationToken ct = default)
-    {
-        var payload = JsonSerializer.SerializeToUtf8Bytes(agents.Select(ToDto));
-
-        var message = new MqttApplicationMessageBuilder()
-            .WithTopic(TopicToRaspberry)
-            .WithPayload(payload)
-            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-            .Build();
-
-        return _client.PublishAsync(message, ct);
-    }
-
-    /// <summary>
-    /// Version sécurisée — ne lève pas d'exception si le broker est injoignable.
-    /// Utilisée depuis la boucle de simulation (fire-and-forget).
-    /// </summary>
-    public async Task TryPublishSnapshotAsync(IEnumerable<AgentModel> agents, CancellationToken ct = default)
+    public async Task TryPublishAgentAsync(AgentModel agent, CancellationToken ct = default)
     {
         if (!_client.IsConnected) return;
         try
         {
-            await PublishSnapshotAsync(agents, ct);
+            var payload = JsonSerializer.SerializeToUtf8Bytes(ToDto(agent));
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic(TopicToRaspberry)
+                .WithPayload(payload)
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .Build();
+            await _client.PublishAsync(message, ct);
+            System.Diagnostics.Debug.WriteLine($"📤 MQTT -> {agent.Name} envoyé sur '{TopicToRaspberry}'");
         }
         catch (Exception ex)
         {

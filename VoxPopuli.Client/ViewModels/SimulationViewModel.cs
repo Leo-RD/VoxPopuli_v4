@@ -14,11 +14,7 @@ public partial class SimulationViewModel : BaseViewModel
     private readonly MqttAgentService _mqttService;
     private readonly Random _random = new Random();
 
-    // Compteur pour publier via MQTT toutes les 30 frames (~500ms à 60fps)
-    private const int MqttPublishIntervalFrames = 30;
-    private int _mqttFrameCounter = 0;
-
-    // Pool persistant d'agents : conserve leur identité (Nom, Id) entre les simulations
+    // Pool persistant
     private readonly List<AgentModel> _agentPool = new();
 
     private static readonly string[] _firstNames =
@@ -378,6 +374,7 @@ public partial class SimulationViewModel : BaseViewModel
             IsAgentSelected = true;
             UpdateSelectedAgentInfo();
             System.Diagnostics.Debug.WriteLine($"🎯 Agent sélectionné: {closestAgent.Name} ({closestAgent.Id})");
+            _ = _mqttService.TryPublishAgentAsync(closestAgent);
         }
         else
         {
@@ -534,14 +531,7 @@ public partial class SimulationViewModel : BaseViewModel
             UpdateAgentMovement(agent);
         }
 
-        // Publication MQTT : snapshot toutes les MqttPublishIntervalFrames frames
-        _mqttFrameCounter++;
-        if (_mqttFrameCounter >= MqttPublishIntervalFrames)
-        {
-            _mqttFrameCounter = 0;
-            _ = _mqttService.TryPublishSnapshotAsync(Population);
         }
-    }
 
     /// <summary>
     /// Met à jour le mouvement d'un agent selon le Random Walk et le regroupement par affinité.
