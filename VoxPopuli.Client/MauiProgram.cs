@@ -42,12 +42,11 @@ public static class MauiProgram
         // Service ML.NET pour l'inférence du modèle d'opinions
         builder.Services.AddSingleton<MLNetInferenceService>();
 
-        // Service MQTT pour la transmission des données agents
+        // Client MQTT → broker Mosquitto sur la Raspberry Pi du collègue
+        // ⚠️ Remplacer par l'IP réseau réelle de la Raspberry Pi
+        const string RaspberryBrokerIp = "172.31.253.147";
         builder.Services.AddSingleton<MqttAgentService>(
-            _ => new MqttAgentService("localhost")); // Connexion au broker embarqué
-
-        // Broker MQTT embarqué (l'app EST le serveur sur port 1883)
-        builder.Services.AddSingleton<MqttBrokerService>();
+            _ => new MqttAgentService(RaspberryBrokerIp));
 
         // Service d'analyse de phrases politiques (utilise ML.NET)
         builder.Services.AddSingleton<PoliticalPhraseAnalyzer>();

@@ -1,21 +1,27 @@
 using MQTTnet;
 using MQTTnet.Client;
-using System.Text;
 using System.Text.Json;
 using VoxPopuli.Client.Models;
 
 namespace VoxPopuli.Client.Services;
 
 /// <summary>
-/// Service de transmission des données agents via MQTT.
-/// Topic : voxpopuli/agents/{agentId}/state
+/// Client MQTT qui se connecte au broker Mosquitto sur la Raspberry Pi du collègue.
+///
+/// Topics :
+///   vox/vers/ras  → ce que l'app ENVOIE  (snapshot des agents → Raspberry)
+///   vox/vers/app  → ce que l'app REÇOIT  (commandes/events → depuis la Raspberry)
 /// </summary>
 public class MqttAgentService : IAsyncDisposable
 {
+    // ── Topics (fournis par le collègue) ──────────────────────────────────────
+    public const string TopicToRaspberry   = "vox/vers/ras";
+    public const string TopicFromRaspberry = "vox/vers/app";
+
     private readonly IMqttClient _client;
     private readonly MqttClientOptions _options;
 
-    // DTO léger pour la sérialisation (évite d'exposer SKColor non-sérialisable)
+    // ── DTO léger (évite d'exposer SKColor non-sérialisable) ─────────────────
     private record AgentStateDto(
         string Id,
         string Name,
@@ -28,24 +34,40 @@ public class MqttAgentService : IAsyncDisposable
         float[] OpinionVector
     );
 
+    /// <summary>Déclenché à chaque message reçu de la Raspberry (payload brut).</summary>
+    public event Action<string>? MessageFromRaspberryReceived;
+
     public bool IsConnected => _client.IsConnected;
 
-    public MqttAgentService(string brokerHost, int port = 1883)
+    public MqttAgentService(string brokerIp, int port = 1883)
     {
         var factory = new MqttFactory();
         _client = factory.CreateMqttClient();
 
         _options = new MqttClientOptionsBuilder()
-            .WithTcpServer(brokerHost, port)
-            .WithClientId($"VoxPopuli_{Guid.NewGuid():N}")
+            .WithTcpServer(brokerIp, port)
+            .WithClientId($"VoxPopuliApp_{Guid.NewGuid():N}")
             .WithCleanSession()
             .Build();
+
+        // Branchement du handler de réception
+        _client.ApplicationMessageReceivedAsync += OnMessageReceivedAsync;
     }
 
+    /// <summary>Connexion au broker + abonnement au topic entrant.</summary>
     public async Task ConnectAsync(CancellationToken ct = default)
     {
-        if (!_client.IsConnected)
+        if (_client.IsConnected) return;
+        try
+        {
             await _client.ConnectAsync(_options, ct);
+            await _client.SubscribeAsync(TopicFromRaspberry, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce, ct);
+            System.Diagnostics.Debug.WriteLine($"🟢 MQTT connecté | abonné à '{TopicFromRaspberry}'");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"⚠️ MQTT connexion échouée : {ex.Message}");
+        }
     }
 
     public async Task DisconnectAsync(CancellationToken ct = default)
@@ -54,30 +76,17 @@ public class MqttAgentService : IAsyncDisposable
             await _client.DisconnectAsync(cancellationToken: ct);
     }
 
-    /// <summary>Publie l'état d'un seul agent.</summary>
-    public Task PublishAgentAsync(AgentModel agent, CancellationToken ct = default)
-    {
-        var dto = ToDto(agent);
-        var payload = JsonSerializer.SerializeToUtf8Bytes(dto);
+    // ── Publication ───────────────────────────────────────────────────────────
 
-        var message = new MqttApplicationMessageBuilder()
-            .WithTopic($"voxpopuli/agents/{agent.Id}/state")
-            .WithPayload(payload)
-            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce)
-            .WithRetainFlag(false)
-            .Build();
-
-        return _client.PublishAsync(message, ct);
-    }
-
-    /// <summary>Publie un snapshot de tous les agents en une seule fois.</summary>
+    /// <summary>
+    /// Publie le snapshot complet des agents vers la Raspberry (topic vox/vers/ras).
+    /// </summary>
     public Task PublishSnapshotAsync(IEnumerable<AgentModel> agents, CancellationToken ct = default)
     {
-        var dtos = agents.Select(ToDto);
-        var payload = JsonSerializer.SerializeToUtf8Bytes(dtos);
+        var payload = JsonSerializer.SerializeToUtf8Bytes(agents.Select(ToDto));
 
         var message = new MqttApplicationMessageBuilder()
-            .WithTopic("voxpopuli/agents/snapshot")
+            .WithTopic(TopicToRaspberry)
             .WithPayload(payload)
             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
@@ -86,8 +95,8 @@ public class MqttAgentService : IAsyncDisposable
     }
 
     /// <summary>
-    /// Version sécurisée : ne lève pas d'exception si le broker est indisponible.
-    /// Utilisé depuis la boucle de simulation.
+    /// Version sécurisée — ne lève pas d'exception si le broker est injoignable.
+    /// Utilisée depuis la boucle de simulation (fire-and-forget).
     /// </summary>
     public async Task TryPublishSnapshotAsync(IEnumerable<AgentModel> agents, CancellationToken ct = default)
     {
@@ -102,14 +111,21 @@ public class MqttAgentService : IAsyncDisposable
         }
     }
 
+    // ── Réception ─────────────────────────────────────────────────────────────
+
+    private Task OnMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
+    {
+        var payload = e.ApplicationMessage.ConvertPayloadToString();
+        System.Diagnostics.Debug.WriteLine($"📩 MQTT [{e.ApplicationMessage.Topic}] : {payload}");
+        MessageFromRaspberryReceived?.Invoke(payload);
+        return Task.CompletedTask;
+    }
+
+    // ── Sérialisation ─────────────────────────────────────────────────────────
+
     private static AgentStateDto ToDto(AgentModel a) => new(
-        a.Id,
-        a.Name,
-        a.Group,
-        a.X,
-        a.Y,
-        a.IsHappy,
-        a.IsInfluenced,
+        a.Id, a.Name, a.Group, a.X, a.Y,
+        a.IsHappy, a.IsInfluenced,
         a.CurrentEmotion.ToString(),
         a.OpinionVector
     );

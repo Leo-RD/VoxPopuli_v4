@@ -97,16 +97,34 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private bool hasSpeechResult = false;
 
+    /// <summary>Dernier message brut reçu depuis la Raspberry via MQTT.</summary>
+    [ObservableProperty]
+    private string lastRaspberryMessage = "";
+
     public SimulationViewModel(MLNetInferenceService mlNetService, PoliticalPhraseAnalyzer phraseAnalyzer, MqttAgentService mqttService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
         _mlNetService = mlNetService;
         _phraseAnalyzer = phraseAnalyzer;
         _mqttService = mqttService;
+
+        // Abonnement aux messages entrants de la Raspberry
+        _mqttService.MessageFromRaspberryReceived += OnRaspberryMessageReceived;
+
         Task.Run(async () => await _mlNetService.InitializeAsync());
         Task.Run(async () => await _mqttService.ConnectAsync());
         InitializePopulation(500);
         System.Diagnostics.Debug.WriteLine($"📊 SimulationViewModel: {Population.Count} agents créés");
+    }
+
+    /// <summary>
+    /// Traite un message reçu depuis la Raspberry (topic vox/vers/app).
+    /// </summary>
+    private void OnRaspberryMessageReceived(string payload)
+    {
+        LastRaspberryMessage = payload;
+        System.Diagnostics.Debug.WriteLine($"📩 Message Raspberry reçu : {payload}");
+        // Étendre ici pour interpréter des commandes JSON envoyées par la Raspberry
     }
 
     /// <summary>
