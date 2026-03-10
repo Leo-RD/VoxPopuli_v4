@@ -22,7 +22,12 @@ public partial class SimulationViewModel : BaseViewModel
         "Alice", "Bruno", "Clara", "David", "Emma", "Félix", "Gaëlle", "Hugo",
         "Inès", "Julien", "Karine", "Lucas", "Marie", "Nathan", "Olivia",
         "Paul", "Quentin", "Rosa", "Samuel", "Théa", "Ugo", "Valère",
-        "Wendy", "Xavier", "Yasmine", "Zoé"
+        "Wendy", "Xavier", "Yasmine", "Zoé",
+        "Adam", "Béatrice", "Cédric", "Daphné", "Éloïse", "Fabien", "Grace",
+        "Hamid", "Iris", "Jérémy", "Lena", "Maxime", "Noémie", "Oscar",
+        "Paola", "Raphaël", "Sonia", "Tristan", "Ursula", "Victor", "Zara",
+        "Amélie", "Baptiste", "Camille", "Diane", "Ethan", "Florence", "Gaëtan",
+        "Hortense", "Ivan", "Jade", "Kevin", "Laura", "Mathieu", "Nina"
     ];
 
     private static readonly string[] _lastNames =
@@ -30,7 +35,18 @@ public partial class SimulationViewModel : BaseViewModel
         "Martin", "Bernard", "Dupont", "Moreau", "Lemaire", "Lefebvre",
         "Garcia", "Roux", "Fournier", "Girard", "Bonnet", "Lambert",
         "Fontaine", "Rousseau", "Vincent", "Leroy", "Chevalier", "Morin",
-        "Simon", "Laurent", "Michel", "Blanc", "Guerin", "Boyer"
+        "Simon", "Laurent", "Michel", "Blanc", "Guerin", "Boyer",
+        "Petit", "Grand", "Renard", "Faure", "Marchand", "Picard",
+        "Colin", "Perrin", "Gautier", "Clément", "Gauthier", "Noel",
+        "Lacroix", "Masson", "Hubert", "Jacquet", "Aubert", "Barbier",
+        "Sanchez", "Benoit", "Dumas", "Berger", "Ferry", "Renaud"
+    ];
+
+    // Agents dont la présence dans la simulation est garantie (Easter Eggs)
+    private static readonly (string Name, PoliticalOrientation Orientation, string Group)[] _easterEggs =
+    [
+        ("Tiburce Gandji",  PoliticalOrientation.Left,  "A"),
+        ("Hugo Boulicaut-Raffort", PoliticalOrientation.Right, "B")
     ];
 
     // Constantes pour la simulation
@@ -700,6 +716,13 @@ public partial class SimulationViewModel : BaseViewModel
 
         int leftCount = (int)Math.Round(count * leftPercentage / 100.0);
 
+        // Injecter les Easter Eggs en tête de pool (une seule fois)
+        foreach (var egg in _easterEggs)
+        {
+            if (!_agentPool.Any(a => a.Name == egg.Name))
+                _agentPool.Insert(0, new AgentModel { Name = egg.Name });
+        }
+
         // Compléter le pool si besoin (les agents existants conservent leur Nom et Id)
         while (_agentPool.Count < count)
         {
@@ -738,10 +761,21 @@ public partial class SimulationViewModel : BaseViewModel
             agent.LastInfluenceTime = null;
             agent.RenderColor = SKColors.Green;
             agent.MaxSpeed = HappyAgentSpeed;
-            agent.PoliticalOrientation = i < leftCount
-                ? PoliticalOrientation.Left
-                : PoliticalOrientation.Right;
-            agent.Group = i < count / 2 ? "A" : "B";
+
+            // Les Easter Eggs conservent leur orientation et groupe fixes
+            var egg = Array.Find(_easterEggs, e => e.Name == agent.Name);
+            if (egg != default)
+            {
+                agent.PoliticalOrientation = egg.Orientation;
+                agent.Group = egg.Group;
+            }
+            else
+            {
+                agent.PoliticalOrientation = i < leftCount
+                    ? PoliticalOrientation.Left
+                    : PoliticalOrientation.Right;
+                agent.Group = i < count / 2 ? "A" : "B";
+            }
         }
 
         // Mélanger pour éviter que tous les gauches soient d'un côté au départ
