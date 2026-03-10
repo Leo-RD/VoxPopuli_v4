@@ -11,7 +11,12 @@ public partial class SimulationViewModel : BaseViewModel
 {
     private readonly MLNetInferenceService _mlNetService;
     private readonly PoliticalPhraseAnalyzer _phraseAnalyzer;
+    private readonly MqttAgentService _mqttService;
     private readonly Random _random = new Random();
+
+    // Compteur pour publier via MQTT toutes les 30 frames (~500ms à 60fps)
+    private const int MqttPublishIntervalFrames = 30;
+    private int _mqttFrameCounter = 0;
 
     // Pool persistant d'agents : conserve leur identité (Nom, Id) entre les simulations
     private readonly List<AgentModel> _agentPool = new();
@@ -92,12 +97,14 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private bool hasSpeechResult = false;
 
-    public SimulationViewModel(MLNetInferenceService mlNetService, PoliticalPhraseAnalyzer phraseAnalyzer)
+    public SimulationViewModel(MLNetInferenceService mlNetService, PoliticalPhraseAnalyzer phraseAnalyzer, MqttAgentService mqttService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
         _mlNetService = mlNetService;
         _phraseAnalyzer = phraseAnalyzer;
+        _mqttService = mqttService;
         Task.Run(async () => await _mlNetService.InitializeAsync());
+        Task.Run(async () => await _mqttService.ConnectAsync());
         InitializePopulation(500);
         System.Diagnostics.Debug.WriteLine($"📊 SimulationViewModel: {Population.Count} agents créés");
     }
@@ -507,6 +514,14 @@ public partial class SimulationViewModel : BaseViewModel
         {
             var agent = Population[i];
             UpdateAgentMovement(agent);
+        }
+
+        // Publication MQTT : snapshot toutes les MqttPublishIntervalFrames frames
+        _mqttFrameCounter++;
+        if (_mqttFrameCounter >= MqttPublishIntervalFrames)
+        {
+            _mqttFrameCounter = 0;
+            _ = _mqttService.TryPublishSnapshotAsync(Population);
         }
     }
 

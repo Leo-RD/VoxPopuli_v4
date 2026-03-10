@@ -42,6 +42,13 @@ public static class MauiProgram
         // Service ML.NET pour l'inférence du modèle d'opinions
         builder.Services.AddSingleton<MLNetInferenceService>();
 
+        // Service MQTT pour la transmission des données agents
+        builder.Services.AddSingleton<MqttAgentService>(
+            _ => new MqttAgentService("localhost")); // Connexion au broker embarqué
+
+        // Broker MQTT embarqué (l'app EST le serveur sur port 1883)
+        builder.Services.AddSingleton<MqttBrokerService>();
+
         // Service d'analyse de phrases politiques (utilise ML.NET)
         builder.Services.AddSingleton<PoliticalPhraseAnalyzer>();
 
