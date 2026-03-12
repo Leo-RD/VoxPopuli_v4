@@ -246,18 +246,18 @@
                             </Border.StrokeShape>
                             <Grid ColumnDefinitions="*, *, *">
                                 <Label Grid.Column="0" 
-                                       Text="⚡ FPS: 60" 
+                                       Text="⚡ FPS: 30 (Variable)" 
                                        FontFamily="AvantGardeBook"
                                        FontSize="12" 
                                        TextColor="{StaticResource GlassTextLight}"/>
                                 <Label Grid.Column="1" 
-                                       Text="⏱️ 00:45" 
+                                       Text="{Binding SimulationTime, StringFormat='⏱️ {0}'}" 
                                        FontFamily="AvantGardeBook"
                                        FontSize="12" 
                                        TextColor="{StaticResource GlassTextLight}" 
                                        HorizontalOptions="Center"/>
                                 <Label Grid.Column="2" 
-                                       Text="🧠 120/s" 
+                                       Text="🧠 VoxPopuli.mlnet" 
                                        FontFamily="AvantGardeBook"
                                        FontSize="12" 
                                        TextColor="{StaticResource GlassTextLight}" 
@@ -351,7 +351,7 @@
                                                 <RoundRectangle CornerRadius="12"/>
                                             </Border.StrokeShape>
                                             <Entry x:Name="PoliticalPhraseEntry"
-                                                   Placeholder="Ex: Il faut taxer les richesses..."
+                                                   Placeholder="Entrez une phrase politique..."
                                                    Style="{StaticResource GlassEntry}"
                                                    HeightRequest="44"
                                                    BackgroundColor="Transparent"
@@ -410,7 +410,7 @@
                                 <Label Text="⚡ Actions" 
                                        Style="{StaticResource GlassSubtitleLabel}"/>
                                 
-                                <Button Text="⚙️ Paramètres" 
+                                <Button Text="⚙️ Configuration de la Simulation" 
                                         Style="{StaticResource GlassButton}"
                                         Command="{Binding NavigateToSettingsCommand}"/>
 

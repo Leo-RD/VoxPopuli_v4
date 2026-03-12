@@ -61,8 +61,14 @@ public partial class SimulationViewModel : BaseViewModel
     private int _frameCount = 0;
     private double _accumulatedTime = 0;
 
+    // Chronomètre de simulation
+    private TimeSpan _simulationElapsed = TimeSpan.Zero;
+
     [ObservableProperty]
     private int currentFps = 60;
+
+    [ObservableProperty]
+    private string simulationTime = "00:00";
 
     [ObservableProperty]
     private string currentPoliticalPhrase = "";
@@ -543,6 +549,10 @@ public partial class SimulationViewModel : BaseViewModel
             _accumulatedTime = 0;
         }
 
+        // Mise à jour du chronomètre (cap à 100ms pour absorber les spikes de reprise de pause)
+        _simulationElapsed += TimeSpan.FromSeconds(Math.Min(deltaTime, 0.1));
+        SimulationTime = _simulationElapsed.ToString(@"mm\:ss");
+
         // Parcourir tous les agents pour mettre à jour leur position
         for (int i = 0; i < Population.Count; i++)
         {
@@ -713,6 +723,9 @@ public partial class SimulationViewModel : BaseViewModel
     {
         var random = new Random();
         AgentCount = count;
+
+        _simulationElapsed = TimeSpan.Zero;
+        SimulationTime = "00:00";
 
         int leftCount = (int)Math.Round(count * leftPercentage / 100.0);
 
