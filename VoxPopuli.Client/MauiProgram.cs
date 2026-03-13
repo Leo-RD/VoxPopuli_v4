@@ -44,7 +44,7 @@ public static class MauiProgram
 
         // Client MQTT → broker Mosquitto sur la Raspberry Pi du collègue
         // ⚠️ Remplacer par l'IP réseau réelle de la Raspberry Pi
-        const string RaspberryBrokerIp = "172.31.254.119";
+        const string RaspberryBrokerIp = "172.31.254.24";
         builder.Services.AddSingleton<MqttAgentService>(
             _ => new MqttAgentService(RaspberryBrokerIp));
 

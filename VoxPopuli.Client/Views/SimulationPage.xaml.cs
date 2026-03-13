@@ -84,6 +84,22 @@ public partial class SimulationPage : ContentPage
         StartRenderLoop();
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (this.Content != null)
+        {
+            this.Content.Opacity = 0;
+            this.Content.Scale = 0.95;
+
+            await Task.WhenAll(
+                this.Content.FadeTo(1, 600, Easing.CubicOut),
+                this.Content.ScaleTo(1, 600, Easing.SpringOut)
+            );
+        }
+    }
+
     private void StartRenderLoop()
     {
         // Timer configuré pour cibler 30 FPS

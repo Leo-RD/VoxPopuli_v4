@@ -153,8 +153,15 @@ public class MLNetInferenceService : IDisposable
             System.Diagnostics.Debug.WriteLine($"   - Label prédit: {prediction.PredictedLabel}");
             System.Diagnostics.Debug.WriteLine($"   - Scores: [{string.Join(", ", prediction.Score.Select(s => s.ToString("F3")))}]");
 
-            // Pour un modèle de classification binaire, Score contient [probClasse0, probClasse1]
-            // Il faut déterminer quelle classe est 0 et quelle classe est 1
+            // Vérifier s'il s'agit de la classe "Autre" (sans poids politique)
+            if (prediction.PredictedLabel.ToLowerInvariant().Contains("autre"))
+            {
+                System.Diagnostics.Debug.WriteLine($"   - Label 'Autre' détecté, score forcé à 0 (Neutre).");
+                return 0.0f; // Neutre
+            }
+
+            // Pour un modèle de classification, on gère les probabilités
+            // Il faut déterminer quelle classe correspond à quelle orientation
             float normalizedScore;
 
             if (prediction.Score.Length >= 2)

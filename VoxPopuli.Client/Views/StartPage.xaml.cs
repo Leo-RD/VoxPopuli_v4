@@ -13,6 +13,21 @@ public partial class StartPage : ContentPage
         BindingContext = _viewModel;
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Initial state for animation
+        this.Opacity = 0;
+        this.TranslationY = 30;
+
+        // Fluent entry animation
+        await Task.WhenAll(
+            this.FadeTo(1, 800, Easing.CubicOut),
+            this.TranslateTo(0, 0, 800, Easing.CubicOut)
+        );
+    }
+
     private void OnPresetClicked(object sender, EventArgs e)
     {
         if (sender is Button button && int.TryParse(button.Text, out int count))
