@@ -197,23 +197,27 @@ public class PoliticalPhraseAnalyzer
         if (sentences.Count == 0)
             return result;
 
-        float totalScore = 0f;
+        float orientedScoreSum = 0f;
+        int orientedSentenceCount = 0;
 
         foreach (var sentence in sentences)
         {
             float score = AnalyzePhrase(sentence);
-            totalScore += score;
 
             string orientation;
             if (score < -NeutralThreshold)
             {
                 orientation = "Gauche";
                 result.LeftSentences++;
+                orientedScoreSum += score;
+                orientedSentenceCount++;
             }
             else if (score > NeutralThreshold)
             {
                 orientation = "Droite";
                 result.RightSentences++;
+                orientedScoreSum += score;
+                orientedSentenceCount++;
             }
             else
             {
@@ -226,16 +230,30 @@ public class PoliticalPhraseAnalyzer
         }
 
         result.TotalSentences = sentences.Count;
-        result.AverageScore = totalScore / sentences.Count;
+        result.AverageScore = orientedSentenceCount > 0 ? orientedScoreSum / orientedSentenceCount : 0f;
 
-        if (result.AverageScore < -NeutralThreshold)
+        if (result.AverageScore <= -NeutralThreshold)
+        {
             result.GlobalOrientation = "Gauche";
-        else if (result.AverageScore > NeutralThreshold)
+        }
+        else if (result.AverageScore >= NeutralThreshold)
+        {
             result.GlobalOrientation = "Droite";
+        }
+        else if (result.LeftSentences > result.RightSentences)
+        {
+            result.GlobalOrientation = "Gauche";
+        }
+        else if (result.RightSentences > result.LeftSentences)
+        {
+            result.GlobalOrientation = "Droite";
+        }
         else
+        {
             result.GlobalOrientation = "Neutre";
+        }
 
-        System.Diagnostics.Debug.WriteLine($"📊 Discours analysé : {result.TotalSentences} phrases, Score moyen={result.AverageScore:F2}, Orientation={result.GlobalOrientation}");
+        System.Diagnostics.Debug.WriteLine($"📊 Discours analysé : {result.TotalSentences} phrases, {orientedSentenceCount} orientées, Score moyen={result.AverageScore:F2}, Orientation={result.GlobalOrientation}");
         System.Diagnostics.Debug.WriteLine($"   Gauche={result.LeftSentences}, Droite={result.RightSentences}, Neutre={result.NeutralSentences}");
 
         return result;

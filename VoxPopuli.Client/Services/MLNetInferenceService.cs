@@ -153,11 +153,23 @@ public class MLNetInferenceService : IDisposable
             System.Diagnostics.Debug.WriteLine($"   - Label prédit: {prediction.PredictedLabel}");
             System.Diagnostics.Debug.WriteLine($"   - Scores: [{string.Join(", ", prediction.Score.Select(s => s.ToString("F3")))}]");
 
-            // Vérifier s'il s'agit de la classe "Autre" (sans poids politique)
-            if (prediction.PredictedLabel.ToLowerInvariant().Contains("autre"))
+            string predictedLabel = prediction.PredictedLabel.ToLowerInvariant();
+
+            // Nouveau modèle multiclasses : on s'appuie d'abord sur le label prédit
+            if (predictedLabel.Contains("autre") || predictedLabel.Contains("other") || predictedLabel.Contains("neutre"))
             {
                 System.Diagnostics.Debug.WriteLine($"   - Label 'Autre' détecté, score forcé à 0 (Neutre).");
                 return 0.0f; // Neutre
+            }
+
+            if (predictedLabel.Contains("left") || predictedLabel.Contains("gauche") || predictedLabel == "0")
+            {
+                return -1.0f;
+            }
+
+            if (predictedLabel.Contains("right") || predictedLabel.Contains("droite") || predictedLabel == "1")
+            {
+                return 1.0f;
             }
 
             // Pour un modèle de classification, on gère les probabilités
@@ -170,7 +182,6 @@ public class MLNetInferenceService : IDisposable
                 // et on compare avec le label prédit pour comprendre l'ordre
 
                 int maxScoreIndex = prediction.Score[0] > prediction.Score[1] ? 0 : 1;
-                string predictedLabel = prediction.PredictedLabel.ToLowerInvariant();
 
                 // Déterminer si Score[0] correspond à gauche ou droite
                 bool score0IsLeft;

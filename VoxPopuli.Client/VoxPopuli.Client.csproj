@@ -57,7 +57,7 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 
 		<!-- ML.NET Model -->
-		<MauiAsset Include="Resources\MLModels\VoxPopuli.mlnet" LogicalName="Models\VoxPopuli.mlnet" />
+		<MauiAsset Include="Resources\MLModels\VoxPopuli.mlnet" LogicalName="Models/VoxPopuli.mlnet" />
 
 
 	</ItemGroup>
