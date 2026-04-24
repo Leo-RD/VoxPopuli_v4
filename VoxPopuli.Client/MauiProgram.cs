@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using VoxPopuli.Client.Views;
 using VoxPopuli.Client.ViewModels;
 using VoxPopuli.Client.Services;
+using VoxPopuli.Client.Services.Api;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace VoxPopuli.Client;
@@ -50,6 +51,15 @@ public static class MauiProgram
 
         // Service d'analyse de phrases politiques (utilise ML.NET)
         builder.Services.AddSingleton<PoliticalPhraseAnalyzer>();
+
+        // API ASP.NET (JWT + endpoints Simulations)
+        builder.Services.AddSingleton(_ => new HttpClient
+        {
+            BaseAddress = new Uri(VoxPopuliApiOptions.BaseUrl),
+            Timeout = TimeSpan.FromSeconds(20)
+        });
+        builder.Services.AddSingleton<ApiAuthenticationService>();
+        builder.Services.AddSingleton<SimulationsApiService>();
 
         // --- Enregistrement des ViewModels ---
         // Singleton pour la simulation : on veut garder l'état des agents si on change de page

@@ -2,7 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using SkiaSharp;
 using VoxPopuli.Client.Models;
+using VoxPopuli.Client.Models.Api;
 using VoxPopuli.Client.Services;
+using VoxPopuli.Client.Services.Api;
 using System.Linq;
 
 namespace VoxPopuli.Client.ViewModels;
@@ -12,6 +14,7 @@ public partial class SimulationViewModel : BaseViewModel
     private readonly MLNetInferenceService _mlNetService;
     private readonly PoliticalPhraseAnalyzer _phraseAnalyzer;
     private readonly MqttAgentService _mqttService;
+    private readonly SimulationsApiService _simulationsApiService;
     private readonly Random _random = new Random();
 
     // Pool persistant
@@ -119,12 +122,24 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private string lastRaspberryMessage = "";
 
-    public SimulationViewModel(MLNetInferenceService mlNetService, PoliticalPhraseAnalyzer phraseAnalyzer, MqttAgentService mqttService)
+    private string _apiSyncStatus = "API: en attente";
+    public string ApiSyncStatus
+    {
+        get => _apiSyncStatus;
+        set => SetProperty(ref _apiSyncStatus, value);
+    }
+
+    public SimulationViewModel(
+        MLNetInferenceService mlNetService,
+        PoliticalPhraseAnalyzer phraseAnalyzer,
+        MqttAgentService mqttService,
+        SimulationsApiService simulationsApiService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
         _mlNetService = mlNetService;
         _phraseAnalyzer = phraseAnalyzer;
         _mqttService = mqttService;
+        _simulationsApiService = simulationsApiService;
 
         // Abonnement aux messages entrants de la Raspberry
         _mqttService.MessageFromRaspberryReceived += OnRaspberryMessageReceived;
@@ -268,7 +283,7 @@ public partial class SimulationViewModel : BaseViewModel
     /// Analyse un discours complet et met à jour les agents selon l'orientation globale.
     /// </summary>
     [RelayCommand]
-    private void AnalyzeSpeech()
+    private async Task AnalyzeSpeech()
     {
         if (string.IsNullOrWhiteSpace(SpeechText))
         {
@@ -337,7 +352,28 @@ public partial class SimulationViewModel : BaseViewModel
 
         HasSpeechResult = true;
 
+        await SaveSimulationToApiInternalAsync(result, happyCount, unhappyCount);
+
         System.Diagnostics.Debug.WriteLine($"✅ Discours analysé : {result.GlobalOrientation}, {happyCount} contents, {unhappyCount} pas contents");
+    }
+
+    [RelayCommand]
+    private async Task SaveSimulationToApiAsync()
+    {
+        int happyCount = Population.Count(a => a.IsHappy);
+        int unhappyCount = Population.Count - happyCount;
+
+        var fallbackResult = new SpeechAnalysisResult
+        {
+            TotalSentences = 0,
+            LeftSentences = 0,
+            RightSentences = 0,
+            NeutralSentences = 0,
+            AverageScore = 0f,
+            GlobalOrientation = "Neutre"
+        };
+
+        await SaveSimulationToApiInternalAsync(fallbackResult, happyCount, unhappyCount);
     }
 
     /// <summary>
@@ -521,6 +557,52 @@ public partial class SimulationViewModel : BaseViewModel
         if (opinionScore > 0.6f) return SKColors.Green;
         if (opinionScore < 0.4f) return SKColors.Red;
         return SKColors.Orange;
+    }
+
+    private async Task SaveSimulationToApiInternalAsync(SpeechAnalysisResult result, int happyCount, int unhappyCount)
+    {
+        try
+        {
+            IsBusy = true;
+            ApiSyncStatus = "API: envoi en cours...";
+
+            int leftAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Left);
+            int rightAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Right);
+
+            var request = new SimulationCreateRequest
+            {
+                Name = $"Simulation {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
+                CreatedAtUtc = DateTime.UtcNow,
+                SimulationTime = SimulationTime,
+                AgentCount = Population.Count,
+                LeftAgents = leftAgents,
+                RightAgents = rightAgents,
+                HappyAgents = happyCount,
+                UnhappyAgents = unhappyCount,
+                GlobalOrientation = result.GlobalOrientation,
+                AverageScore = result.AverageScore,
+                TotalSentences = result.TotalSentences,
+                LeftSentences = result.LeftSentences,
+                RightSentences = result.RightSentences,
+                NeutralSentences = result.NeutralSentences,
+                SpeechText = SpeechText,
+                Summary = SpeechResultSummary
+            };
+
+            bool sent = await _simulationsApiService.CreateSimulationAsync(request);
+            ApiSyncStatus = sent
+                ? "API: simulation enregistrée ✅"
+                : "API: échec d'enregistrement ❌";
+        }
+        catch (Exception ex)
+        {
+            ApiSyncStatus = "API: erreur d'envoi ❌";
+            System.Diagnostics.Debug.WriteLine($"❌ Erreur envoi simulation API: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     // ========== MOTEUR DE DÉPLACEMENT (RANDOM WALK) ==========
