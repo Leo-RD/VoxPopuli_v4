@@ -285,6 +285,8 @@ public partial class SimulationViewModel : BaseViewModel
     [RelayCommand]
     private async Task AnalyzeSpeech()
     {
+        System.Diagnostics.Debug.WriteLine("🌐 [API] AnalyzeSpeechCommand déclenchée.");
+
         if (string.IsNullOrWhiteSpace(SpeechText))
         {
             System.Diagnostics.Debug.WriteLine("⚠️ Aucun discours saisi");
@@ -358,8 +360,11 @@ public partial class SimulationViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task SaveSimulationToApiAsync()
+    private async Task SaveSimulationToApi()
     {
+        System.Diagnostics.Debug.WriteLine("🌐 [API] SaveSimulationToApiCommand déclenchée manuellement.");
+        ApiSyncStatus = "API: bouton cliqué, préparation...";
+
         int happyCount = Population.Count(a => a.IsHappy);
         int unhappyCount = Population.Count - happyCount;
 
@@ -565,16 +570,24 @@ public partial class SimulationViewModel : BaseViewModel
         {
             IsBusy = true;
             ApiSyncStatus = "API: envoi en cours...";
+            System.Diagnostics.Debug.WriteLine("🌐 [API] Début préparation payload simulation.");
 
             int leftAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Left);
             int rightAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Right);
 
             var request = new SimulationCreateRequest
             {
+                Titre = $"Simulation {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
+                Discours = string.IsNullOrWhiteSpace(SpeechText) ? CurrentPoliticalPhrase : SpeechText,
+                TypeTest = IsSpeechMode ? "Discours" : "Phrase",
                 Name = $"Simulation {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
                 CreatedAtUtc = DateTime.UtcNow,
                 SimulationTime = SimulationTime,
                 AgentCount = Population.Count,
+                NombreAgents = Population.Count,
+                NombreAgent = Population.Count,
+                NbAgents = Population.Count,
+                NbAgent = Population.Count,
                 LeftAgents = leftAgents,
                 RightAgents = rightAgents,
                 HappyAgents = happyCount,
@@ -589,15 +602,20 @@ public partial class SimulationViewModel : BaseViewModel
                 Summary = SpeechResultSummary
             };
 
+            System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.AgentCount}, Orientation={request.GlobalOrientation}, Score={request.AverageScore:+0.00;-0.00}");
+
             bool sent = await _simulationsApiService.CreateSimulationAsync(request);
             ApiSyncStatus = sent
                 ? "API: simulation enregistrée ✅"
                 : "API: échec d'enregistrement ❌";
+
+            System.Diagnostics.Debug.WriteLine($"🌐 [API] Fin envoi simulation. Succès={sent}");
         }
         catch (Exception ex)
         {
             ApiSyncStatus = "API: erreur d'envoi ❌";
-            System.Diagnostics.Debug.WriteLine($"❌ Erreur envoi simulation API: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ [API] Erreur envoi simulation API: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ [API] Stack: {ex.StackTrace}");
         }
         finally
         {

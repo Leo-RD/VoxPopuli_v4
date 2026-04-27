@@ -385,6 +385,16 @@
                                                 Style="{StaticResource GlassButtonSuccess}"
                                                 Command="{Binding AnalyzeSpeechCommand}"/>
 
+                                         <Button Text="☁️ Envoyer la simulation à l'API"
+                                                 Style="{StaticResource GlassButton}"
+                                                 Command="{Binding SaveSimulationToApiCommand}"/>
+
+                                         <Label Text="{Binding ApiSyncStatus}"
+                                                FontFamily="AvantGardeBook"
+                                                FontSize="12"
+                                                TextColor="#BFD8E3"
+                                                LineBreakMode="WordWrap"/>
+
                                         <!-- Résultats du discours -->
                                         <Border IsVisible="{Binding HasSpeechResult}"
                                                 BackgroundColor="#1A3A2A"
@@ -409,6 +419,16 @@
                             <VerticalStackLayout Spacing="10">
                                 <Label Text="⚡ Actions" 
                                        Style="{StaticResource GlassSubtitleLabel}"/>
+
+                                 <Border Style="{StaticResource GlassInfoPanel}">
+                                     <Label Text="{Binding ApiSyncStatus}"
+                                            Style="{StaticResource GlassBodyLabel}"
+                                            LineBreakMode="WordWrap"/>
+                                 </Border>
+
+                                 <Button Text="☁️ Test envoi API" 
+                                         Style="{StaticResource GlassButton}"
+                                         Command="{Binding SaveSimulationToApiCommand}"/>
                                 
                                 <Button Text="⚙️ Configuration de la Simulation" 
                                         Style="{StaticResource GlassButton}"

@@ -1,12 +1,36 @@
+using System.Text.Json.Serialization;
+
 namespace VoxPopuli.Client.Models.Api;
 
 public class SimulationCreateRequest
 {
+    [JsonPropertyName("Titre")]
+    public string Titre { get; set; } = string.Empty;
+
+    [JsonPropertyName("Discours")]
+    public string Discours { get; set; } = string.Empty;
+
+    [JsonPropertyName("TypeTest")]
+    public string TypeTest { get; set; } = string.Empty;
+
     public string Name { get; set; } = string.Empty;
     public DateTime CreatedAtUtc { get; set; }
     public string SimulationTime { get; set; } = string.Empty;
 
     public int AgentCount { get; set; }
+
+    [JsonPropertyName("NombreAgents")]
+    public int NombreAgents { get; set; }
+
+    [JsonPropertyName("NombreAgent")]
+    public int NombreAgent { get; set; }
+
+    [JsonPropertyName("NbAgents")]
+    public int NbAgents { get; set; }
+
+    [JsonPropertyName("NbAgent")]
+    public int NbAgent { get; set; }
+
     public int LeftAgents { get; set; }
     public int RightAgents { get; set; }
     public int HappyAgents { get; set; }
