@@ -20,7 +20,7 @@ public class SimulationsApiService
     public async Task<bool> CreateSimulationAsync(SimulationCreateRequest request, CancellationToken cancellationToken = default)
     {
         System.Diagnostics.Debug.WriteLine($"🌐 [API] CreateSimulationAsync() - endpoint={_httpClient.BaseAddress}api/Simulations");
-        System.Diagnostics.Debug.WriteLine($"🌐 [API] AgentCount payload: AgentCount={request.AgentCount}, NombreAgents={request.NombreAgents}, NombreAgent={request.NombreAgent}, NbAgents={request.NbAgents}, NbAgent={request.NbAgent}");
+        System.Diagnostics.Debug.WriteLine($"🌐 [API] NbAgent payload: NbAgent={request.NbAgent}");
 
         string payloadJson = JsonSerializer.Serialize(request);
         System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload JSON: {payloadJson}");

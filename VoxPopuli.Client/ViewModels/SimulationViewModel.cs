@@ -580,15 +580,9 @@ public partial class SimulationViewModel : BaseViewModel
         };
     }
 
-    private static string NormalizeOrientationForApi(string orientation)
+    private static string ToApiEmotionalState(bool isHappy)
     {
-        return orientation switch
-        {
-            "Gauche" => "Gauche",
-            "Droite" => "Droite",
-            "Neutre" => "Centre",
-            _ => "Centre"
-        };
+        return isHappy ? "POSITIVE" : "NEGATIVE";
     }
 
     private static string ExtractFirstName(string fullName)
@@ -627,53 +621,34 @@ public partial class SimulationViewModel : BaseViewModel
 
             var request = new SimulationCreateRequest
             {
+                SimulationId = 0,
                 Titre = $"Simulation {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
                 Discours = string.IsNullOrWhiteSpace(SpeechText) ? CurrentPoliticalPhrase : SpeechText,
                 TypeTest = IsSpeechMode ? "Discours" : "Phrase",
-                Name = $"Simulation {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
-                CreatedAtUtc = DateTime.UtcNow,
-                SimulationTime = SimulationTime,
-                AgentCount = Population.Count,
-                NombreAgents = Population.Count,
-                NombreAgent = Population.Count,
-                NbAgents = Population.Count,
                 NbAgent = Population.Count,
-                LeftAgents = leftAgents,
-                NombreAgentsGauche = leftAgents,
-                NombreAgentGauche = leftAgents,
-                NbAgentsGauche = leftAgents,
-                NbAgentGauche = leftAgents,
-                Gauche = leftAgents,
-                RightAgents = rightAgents,
-                NombreAgentsDroite = rightAgents,
-                NombreAgentDroite = rightAgents,
-                NbAgentsDroite = rightAgents,
-                NbAgentDroite = rightAgents,
-                Droite = rightAgents,
-                GlobalOrientation = NormalizeOrientationForApi(result.GlobalOrientation),
-                HappyAgents = happyCount,
-                UnhappyAgents = unhappyCount,
-                AverageScore = result.AverageScore,
-                TotalSentences = result.TotalSentences,
-                LeftSentences = result.LeftSentences,
-                RightSentences = result.RightSentences,
-                NeutralSentences = result.NeutralSentences,
-                CentreSentences = result.NeutralSentences,
-                SpeechText = SpeechText,
-                Summary = SpeechResultSummary,
+                DateSimulation = DateTime.UtcNow,
                 Agents = Population.Select(agent => new AgentCreateRequest
                 {
+                    AgentId = 0,
                     Nom = ExtractLastName(agent.Name),
                     Prenom = ExtractFirstName(agent.Name),
-                    Avatar = string.Empty,
-                    Description = "",
-                    NiveauEmotion = (int)agent.CurrentEmotion,
-                    DateCreation = DateTime.UtcNow,
-                    OrientationPolitique = ToApiOrientation(agent.PoliticalOrientation)
+                    Description = null,
+                    Avatar = null,
+                    OriantationPolitique = ToApiOrientation(agent.PoliticalOrientation),
+                    SimulationId = 0,
+                    Predictions =
+                    [
+                        new PredictionCreateRequest
+                        {
+                            PredictionId = 0,
+                            Contenu = ToApiEmotionalState(agent.IsHappy),
+                            AgentId = 0
+                        }
+                    ]
                 }).ToList()
             };
 
-            System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.AgentCount} (G={leftAgents}, D={rightAgents}, C={centerAgents}), Orientation={request.GlobalOrientation}, Score={request.AverageScore:+0.00;-0.00}");
+            System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.NbAgent} (G={leftAgents}, D={rightAgents}, C={centerAgents}), Type={request.TypeTest}");
 
             bool sent = await _simulationsApiService.CreateSimulationAsync(request);
             ApiSyncStatus = sent

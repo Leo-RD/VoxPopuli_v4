@@ -4,24 +4,27 @@ namespace VoxPopuli.Client.Models.Api;
 
 public class AgentCreateRequest
 {
-    [JsonPropertyName("Nom")]
+    [JsonPropertyName("agentId")]
+    public int? AgentId { get; set; }
+
+    [JsonPropertyName("nom")]
     public string Nom { get; set; } = string.Empty;
 
-    [JsonPropertyName("Prenom")]
-    public string Prenom { get; set; } = string.Empty;
+    [JsonPropertyName("prenom")]
+    public string? Prenom { get; set; }
 
-    [JsonPropertyName("Avatar")]
-    public string Avatar { get; set; } = string.Empty;
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
 
-    [JsonPropertyName("Description")]
-    public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("avatar")]
+    public string? Avatar { get; set; }
 
-    [JsonPropertyName("NiveauEmotion")]
-    public int NiveauEmotion { get; set; }
+    [JsonPropertyName("oriantationPolitique")]
+    public string? OriantationPolitique { get; set; }
 
-    [JsonPropertyName("DateCreation")]
-    public DateTime DateCreation { get; set; }
+    [JsonPropertyName("simulationId")]
+    public int? SimulationId { get; set; }
 
-    [JsonPropertyName("OrientationPolitique")]
-    public string OrientationPolitique { get; set; } = "Centre";
+    [JsonPropertyName("predictions")]
+    public List<PredictionCreateRequest> Predictions { get; set; } = new();
 }
