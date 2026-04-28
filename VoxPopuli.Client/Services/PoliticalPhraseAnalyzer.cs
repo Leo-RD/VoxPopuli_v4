@@ -175,14 +175,14 @@ public class PoliticalPhraseAnalyzer
 
         // Si la phrase est de gauche (score négatif) et l'agent est de gauche → content
         // Si la phrase est de droite (score positif) et l'agent est de droite → content
-        if (orientation == PoliticalOrientation.Left)
+        // Les agents de centre ne sont satisfaits que par des messages neutres
+        return orientation switch
         {
-            return phraseScore < -NeutralThreshold;
-        }
-        else
-        {
-            return phraseScore > NeutralThreshold;
-        }
+            PoliticalOrientation.Left => phraseScore < -NeutralThreshold,
+            PoliticalOrientation.Right => phraseScore > NeutralThreshold,
+            PoliticalOrientation.Center => false,
+            _ => false
+        };
     }
 
     /// <summary>

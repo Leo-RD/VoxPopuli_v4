@@ -316,7 +316,7 @@ public partial class SimulationViewModel : BaseViewModel
             {
                 "Gauche"  => agent.PoliticalOrientation == PoliticalOrientation.Left,
                 "Droite"  => agent.PoliticalOrientation == PoliticalOrientation.Right,
-                _         => true // Neutre → tout le monde content
+                _         => agent.PoliticalOrientation == PoliticalOrientation.Center // Neutre → centre content
             };
 
             agent.IsHappy = isHappy;
@@ -462,7 +462,12 @@ public partial class SimulationViewModel : BaseViewModel
             return;
         }
 
-        var orientation = SelectedAgent.PoliticalOrientation == PoliticalOrientation.Left ? "Gauche 🔴" : "Droite 🔵";
+        var orientation = SelectedAgent.PoliticalOrientation switch
+        {
+            PoliticalOrientation.Left => "Gauche 🔴",
+            PoliticalOrientation.Right => "Droite 🔵",
+            _ => "Centre ⚪"
+        };
         var emotion = SelectedAgent.IsHappy ? "Content 😊" : "Pas content 😠";
         var speed = $"{SelectedAgent.MaxSpeed:F1} px/frame";
         var position = $"({SelectedAgent.X:F0}, {SelectedAgent.Y:F0})";
@@ -564,6 +569,50 @@ public partial class SimulationViewModel : BaseViewModel
         return SKColors.Orange;
     }
 
+    private static string ToApiOrientation(PoliticalOrientation orientation)
+    {
+        return orientation switch
+        {
+            PoliticalOrientation.Left => "Gauche",
+            PoliticalOrientation.Right => "Droite",
+            PoliticalOrientation.Center => "Centre",
+            _ => "Centre"
+        };
+    }
+
+    private static string NormalizeOrientationForApi(string orientation)
+    {
+        return orientation switch
+        {
+            "Gauche" => "Gauche",
+            "Droite" => "Droite",
+            "Neutre" => "Centre",
+            _ => "Centre"
+        };
+    }
+
+    private static string ExtractFirstName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return string.Empty;
+        }
+
+        string[] parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length > 0 ? parts[0] : string.Empty;
+    }
+
+    private static string ExtractLastName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return string.Empty;
+        }
+
+        string[] parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length > 1 ? string.Join(' ', parts.Skip(1)) : string.Empty;
+    }
+
     private async Task SaveSimulationToApiInternalAsync(SpeechAnalysisResult result, int happyCount, int unhappyCount)
     {
         try
@@ -574,6 +623,7 @@ public partial class SimulationViewModel : BaseViewModel
 
             int leftAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Left);
             int rightAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Right);
+            int centerAgents = Population.Count(a => a.PoliticalOrientation == PoliticalOrientation.Center);
 
             var request = new SimulationCreateRequest
             {
@@ -589,20 +639,41 @@ public partial class SimulationViewModel : BaseViewModel
                 NbAgents = Population.Count,
                 NbAgent = Population.Count,
                 LeftAgents = leftAgents,
+                NombreAgentsGauche = leftAgents,
+                NombreAgentGauche = leftAgents,
+                NbAgentsGauche = leftAgents,
+                NbAgentGauche = leftAgents,
+                Gauche = leftAgents,
                 RightAgents = rightAgents,
+                NombreAgentsDroite = rightAgents,
+                NombreAgentDroite = rightAgents,
+                NbAgentsDroite = rightAgents,
+                NbAgentDroite = rightAgents,
+                Droite = rightAgents,
+                GlobalOrientation = NormalizeOrientationForApi(result.GlobalOrientation),
                 HappyAgents = happyCount,
                 UnhappyAgents = unhappyCount,
-                GlobalOrientation = result.GlobalOrientation,
                 AverageScore = result.AverageScore,
                 TotalSentences = result.TotalSentences,
                 LeftSentences = result.LeftSentences,
                 RightSentences = result.RightSentences,
                 NeutralSentences = result.NeutralSentences,
+                CentreSentences = result.NeutralSentences,
                 SpeechText = SpeechText,
-                Summary = SpeechResultSummary
+                Summary = SpeechResultSummary,
+                Agents = Population.Select(agent => new AgentCreateRequest
+                {
+                    Nom = ExtractLastName(agent.Name),
+                    Prenom = ExtractFirstName(agent.Name),
+                    Avatar = string.Empty,
+                    Description = "",
+                    NiveauEmotion = (int)agent.CurrentEmotion,
+                    DateCreation = DateTime.UtcNow,
+                    OrientationPolitique = ToApiOrientation(agent.PoliticalOrientation)
+                }).ToList()
             };
 
-            System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.AgentCount}, Orientation={request.GlobalOrientation}, Score={request.AverageScore:+0.00;-0.00}");
+            System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.AgentCount} (G={leftAgents}, D={rightAgents}, C={centerAgents}), Orientation={request.GlobalOrientation}, Score={request.AverageScore:+0.00;-0.00}");
 
             bool sent = await _simulationsApiService.CreateSimulationAsync(request);
             ApiSyncStatus = sent
@@ -886,8 +957,15 @@ public partial class SimulationViewModel : BaseViewModel
             {
                 agent.PoliticalOrientation = i < leftCount
                     ? PoliticalOrientation.Left
-                    : PoliticalOrientation.Right;
-                agent.Group = i < count / 2 ? "A" : "B";
+                    : i >= count - leftCount
+                        ? PoliticalOrientation.Right
+                        : PoliticalOrientation.Center;
+                agent.Group = agent.PoliticalOrientation switch
+                {
+                    PoliticalOrientation.Left => "A",
+                    PoliticalOrientation.Right => "B",
+                    _ => "C"
+                };
             }
         }
 

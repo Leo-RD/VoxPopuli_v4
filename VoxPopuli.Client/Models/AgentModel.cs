@@ -135,5 +135,6 @@ public enum EmotionalState
 public enum PoliticalOrientation
 {
     Left,   // Gauche
-    Right   // Droite
+    Right,  // Droite
+    Center  // Centre
 }
