@@ -582,7 +582,7 @@ public partial class SimulationViewModel : BaseViewModel
 
     private static string ToApiEmotionalState(bool isHappy)
     {
-        return isHappy ? "POSITIVE" : "NEGATIVE";
+        return isHappy ? "1" : "0";
     }
 
     private static string ExtractFirstName(string fullName)
@@ -642,11 +642,19 @@ public partial class SimulationViewModel : BaseViewModel
                         {
                             PredictionId = 0,
                             Contenu = ToApiEmotionalState(agent.IsHappy),
+                            Reaction = agent.IsHappy ? "content" : "mécontent",
+                            NiveauEmotion = agent.IsHappy ? 1 : 0,
                             AgentId = 0
                         }
                     ]
                 }).ToList()
             };
+
+            foreach (var (agent, index) in request.Agents.Take(3).Select((agent, index) => (agent, index)))
+            {
+                var prediction = agent.Predictions.FirstOrDefault();
+                System.Diagnostics.Debug.WriteLine($"🌐 [API] Agent[{index}] prediction: Reaction={prediction?.Reaction}, NiveauEmotion={prediction?.NiveauEmotion}, Contenu={prediction?.Contenu}");
+            }
 
             System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.NbAgent} (G={leftAgents}, D={rightAgents}, C={centerAgents}), Type={request.TypeTest}");
 
