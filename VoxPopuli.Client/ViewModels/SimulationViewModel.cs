@@ -632,8 +632,8 @@ public partial class SimulationViewModel : BaseViewModel
                     AgentId = 0,
                     Nom = ExtractLastName(agent.Name),
                     Prenom = ExtractFirstName(agent.Name),
-                    Description = null,
-                    Avatar = null,
+                    Description = string.Empty,
+                    Avatar = string.Empty,
                     OriantationPolitique = ToApiOrientation(agent.PoliticalOrientation),
                     SimulationId = 0,
                     Predictions =

@@ -14,10 +14,10 @@ public class AgentCreateRequest
     public string? Prenom { get; set; }
 
     [JsonPropertyName("description")]
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("avatar")]
-    public string? Avatar { get; set; }
+    public string Avatar { get; set; } = string.Empty;
 
     [JsonPropertyName("oriantationPolitique")]
     public string? OriantationPolitique { get; set; }
