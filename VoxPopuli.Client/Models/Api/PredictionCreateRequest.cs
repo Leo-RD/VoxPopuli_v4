@@ -10,9 +10,6 @@ public class PredictionCreateRequest
     [JsonPropertyName("contenu")]
     public string Contenu { get; set; } = string.Empty;
 
-    [JsonPropertyName("reaction")]
-    public string Reaction { get; set; } = string.Empty;
-
 
     [JsonPropertyName("agentId")]
     public int? AgentId { get; set; }
