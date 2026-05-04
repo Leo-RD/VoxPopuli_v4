@@ -636,6 +636,7 @@ public partial class SimulationViewModel : BaseViewModel
                     Avatar = string.Empty,
                     OriantationPolitique = ToApiOrientation(agent.PoliticalOrientation),
                     SimulationId = 0,
+                    NiveauEmotion = agent.IsHappy ? 1 : 0,
                     Predictions =
                     [
                         new PredictionCreateRequest
@@ -643,7 +644,6 @@ public partial class SimulationViewModel : BaseViewModel
                             PredictionId = 0,
                             Contenu = ToApiEmotionalState(agent.IsHappy),
                             Reaction = agent.IsHappy ? "content" : "mécontent",
-                            NiveauEmotion = agent.IsHappy ? 1 : 0,
                             AgentId = 0
                         }
                     ]
@@ -653,7 +653,7 @@ public partial class SimulationViewModel : BaseViewModel
             foreach (var (agent, index) in request.Agents.Take(3).Select((agent, index) => (agent, index)))
             {
                 var prediction = agent.Predictions.FirstOrDefault();
-                System.Diagnostics.Debug.WriteLine($"🌐 [API] Agent[{index}] prediction: Reaction={prediction?.Reaction}, NiveauEmotion={prediction?.NiveauEmotion}, Contenu={prediction?.Contenu}");
+                System.Diagnostics.Debug.WriteLine($"🌐 [API] Agent[{index}] prediction: Reaction={prediction?.Reaction}, Contenu={prediction?.Contenu}");
             }
 
             System.Diagnostics.Debug.WriteLine($"🌐 [API] Payload prêt: Agents={request.NbAgent} (G={leftAgents}, D={rightAgents}, C={centerAgents}), Type={request.TypeTest}");

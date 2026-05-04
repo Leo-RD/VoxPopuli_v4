@@ -25,6 +25,16 @@ public class AgentCreateRequest
     [JsonPropertyName("simulationId")]
     public int? SimulationId { get; set; }
 
+    [JsonPropertyName("niveau_emotion")]
+    public int NiveauEmotion { get; set; }
+
+    [JsonPropertyName("niveauEmotion")]
+    public int NiveauEmotionAlias
+    {
+        get => NiveauEmotion;
+        set => NiveauEmotion = value;
+    }
+
     [JsonPropertyName("predictions")]
     public List<PredictionCreateRequest> Predictions { get; set; } = new();
 }

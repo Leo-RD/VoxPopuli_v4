@@ -13,8 +13,6 @@ public class PredictionCreateRequest
     [JsonPropertyName("reaction")]
     public string Reaction { get; set; } = string.Empty;
 
-    [JsonPropertyName("niveau_emotion")]
-    public int NiveauEmotion { get; set; }
 
     [JsonPropertyName("agentId")]
     public int? AgentId { get; set; }
