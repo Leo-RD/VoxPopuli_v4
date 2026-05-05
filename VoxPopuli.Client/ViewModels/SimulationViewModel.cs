@@ -5,6 +5,7 @@ using VoxPopuli.Client.Models;
 using VoxPopuli.Client.Models.Api;
 using VoxPopuli.Client.Services;
 using VoxPopuli.Client.Services.Api;
+using VoxPopuli.Client.Services.Ai;
 using System.Linq;
 
 namespace VoxPopuli.Client.ViewModels;
@@ -15,6 +16,7 @@ public partial class SimulationViewModel : BaseViewModel
     private readonly PoliticalPhraseAnalyzer _phraseAnalyzer;
     private readonly MqttAgentService _mqttService;
     private readonly SimulationsApiService _simulationsApiService;
+    private readonly GitHubModelsChatService _gitHubModelsChatService;
     private readonly Random _random = new Random();
 
     // Pool persistant
@@ -118,6 +120,12 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private bool hasSpeechResult = false;
 
+    [ObservableProperty]
+    private string aiResponse = "";
+
+    [ObservableProperty]
+    private bool isAiBusy = false;
+
     /// <summary>Dernier message brut reçu depuis la Raspberry via MQTT.</summary>
     [ObservableProperty]
     private string lastRaspberryMessage = "";
@@ -133,13 +141,15 @@ public partial class SimulationViewModel : BaseViewModel
         MLNetInferenceService mlNetService,
         PoliticalPhraseAnalyzer phraseAnalyzer,
         MqttAgentService mqttService,
-        SimulationsApiService simulationsApiService)
+        SimulationsApiService simulationsApiService,
+        GitHubModelsChatService gitHubModelsChatService)
     {
         System.Diagnostics.Debug.WriteLine("📊 SimulationViewModel: Initialisation...");
         _mlNetService = mlNetService;
         _phraseAnalyzer = phraseAnalyzer;
         _mqttService = mqttService;
         _simulationsApiService = simulationsApiService;
+        _gitHubModelsChatService = gitHubModelsChatService;
 
         // Abonnement aux messages entrants de la Raspberry
         _mqttService.MessageFromRaspberryReceived += OnRaspberryMessageReceived;
@@ -605,6 +615,60 @@ public partial class SimulationViewModel : BaseViewModel
 
         string[] parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return parts.Length > 1 ? string.Join(' ', parts.Skip(1)) : string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task AskAgentAsync()
+    {
+        if (IsAiBusy)
+        {
+            System.Diagnostics.Debug.WriteLine("[AI] Une requête est déjà en cours.");
+            return;
+        }
+
+        if (SelectedAgent is null)
+        {
+            System.Diagnostics.Debug.WriteLine("[AI] Aucun agent sélectionné.");
+            AiResponse = "Sélectionnez un agent avant d'interroger le chatbot.";
+            return;
+        }
+
+        var promptText = IsSpeechMode ? SpeechText : CurrentPoliticalPhrase;
+        if (string.IsNullOrWhiteSpace(promptText))
+        {
+            System.Diagnostics.Debug.WriteLine("[AI] Aucune phrase ou discours fourni.");
+            AiResponse = "Entrez une phrase ou un discours avant d'interroger le chatbot.";
+            return;
+        }
+
+        var orientation = SelectedAgent.PoliticalOrientation switch
+        {
+            PoliticalOrientation.Left => "Gauche",
+            PoliticalOrientation.Right => "Droite",
+            _ => "Centre"
+        };
+
+        try
+        {
+            IsAiBusy = true;
+            AiResponse = "L'agent r e9fl e9chit...";
+            System.Diagnostics.Debug.WriteLine($"[AI] Requ eate d'argumentaire pour {SelectedAgent.Name} ({orientation}).");
+            System.Diagnostics.Debug.WriteLine($"[AI] Mode: {(IsSpeechMode ? "Discours" : "Phrase")}, longueur: {promptText.Length}.");
+
+            var response = await _gitHubModelsChatService.GetArgumentAsync(orientation, promptText);
+            AiResponse = string.IsNullOrWhiteSpace(response) ? "Aucune réponse générée." : response;
+            System.Diagnostics.Debug.WriteLine($"[AI] Réponse reçue: {AiResponse.Length} caractères.");
+        }
+        catch (Exception ex)
+        {
+            AiResponse = $"Erreur IA: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"[AI] Erreur IA: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AI] Stack: {ex.StackTrace}");
+        }
+        finally
+        {
+            IsAiBusy = false;
+        }
     }
 
     private async Task SaveSimulationToApiInternalAsync(SpeechAnalysisResult result, int happyCount, int unhappyCount)

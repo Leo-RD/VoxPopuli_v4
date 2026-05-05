@@ -19,6 +19,8 @@ public sealed class GitHubModelsChatService
 
     public async Task<string> GetArgumentAsync(string orientationPolitique, string discours, CancellationToken cancellationToken = default)
     {
+        System.Diagnostics.Debug.WriteLine("[AI] Préparation requête GitHub Models...");
+        System.Diagnostics.Debug.WriteLine($"[AI] Modèle: {_options.Model}, Endpoint: {_options.Endpoint}");
         var apiKey = await ReadApiKeyAsync(cancellationToken);
         using var request = new HttpRequestMessage(HttpMethod.Post, _options.Endpoint);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
@@ -31,25 +33,30 @@ public sealed class GitHubModelsChatService
                 new GitHubModelsChatMessage
                 {
                     Role = "system",
-                    Content = $"Tu es un citoyen avec l'orientation politique suivante : {orientationPolitique}. Argumente strictement selon cette idéologie."
+                    Content = $"Tu es un citoyen avec l'orientation politique suivante : {orientationPolitique}. " +
+                              "Tu dois argumenter de façon cohérente avec cette idéologie, en français, de manière concise et claire."
                 },
                 new GitHubModelsChatMessage
                 {
                     Role = "user",
-                    Content = $"Discours/phrase: \"{discours}\". Donne un argumentaire."
+                    Content = $"Texte (phrase ou discours) : \"{discours}\". Donne un argumentaire en fonction de l'orientation." 
                 }
             ]
         };
 
         var json = JsonSerializer.Serialize(payload, JsonOptions);
+        System.Diagnostics.Debug.WriteLine($"[AI] Payload prêt: {json.Length} caractères.");
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
+        System.Diagnostics.Debug.WriteLine($"[AI] Statut réponse: {(int)response.StatusCode} {response.StatusCode}.");
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         var chatResponse = await JsonSerializer.DeserializeAsync<GitHubModelsChatResponse>(stream, JsonOptions, cancellationToken);
-        return chatResponse?.Choices.FirstOrDefault()?.Message.Content ?? string.Empty;
+        var content = chatResponse?.Choices.FirstOrDefault()?.Message.Content ?? string.Empty;
+        System.Diagnostics.Debug.WriteLine($"[AI] Réponse brute: {content.Length} caractères.");
+        return content;
     }
 
     private async Task<string> ReadApiKeyAsync(CancellationToken cancellationToken)
@@ -67,6 +74,7 @@ public sealed class GitHubModelsChatService
             throw new InvalidOperationException("Le fichier de clé API GitHub Models est vide.");
         }
 
+        System.Diagnostics.Debug.WriteLine("[AI] Clé API chargée depuis fichier local.");
         return apiKey;
     }
 }

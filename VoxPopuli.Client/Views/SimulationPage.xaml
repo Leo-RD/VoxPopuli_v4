@@ -297,6 +297,34 @@
                                 </VerticalStackLayout>
                             </Border>
 
+                            <!-- 🤖 ARGUMENTAIRE IA -->
+                            <Border Style="{StaticResource GlassCard}"
+                                    IsVisible="{Binding IsAgentSelected}">
+                                <VerticalStackLayout Spacing="10" Padding="16">
+                                    <Label Text="🤖 Argumentaire IA"
+                                           FontFamily="AvantGardeBold"
+                                           FontSize="14"
+                                           TextColor="{StaticResource GlassText}"/>
+                                    <Button Text="Demander un argumentaire"
+                                            Style="{StaticResource GlassButtonPrimary}"
+                                            Command="{Binding AskAgentCommand}"
+                                            IsEnabled="{Binding IsAiBusy, Converter={StaticResource InverseBoolConverter}}"/>
+                                    <Border BackgroundColor="#253545"
+                                            Padding="12"
+                                            StrokeThickness="1"
+                                            Stroke="#3D5A73">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding AiResponse}"
+                                               FontFamily="AvantGardeBook"
+                                               FontSize="13"
+                                               TextColor="#ECF0F1"
+                                               LineBreakMode="WordWrap"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Border>
+
                             <!-- 💬 PHRASE / DISCOURS INPUT (GLASS CARD) -->
                             <Border Style="{StaticResource GlassCard}">
                                 <VerticalStackLayout Spacing="12" Padding="16">
