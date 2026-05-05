@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using VoxPopuli.Client.Views;
 using VoxPopuli.Client.ViewModels;
 using VoxPopuli.Client.Services;
+using VoxPopuli.Client.Services.Ai;
 using VoxPopuli.Client.Services.Api;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
@@ -40,7 +41,14 @@ public static class MauiProgram
            });
 
         // --- Enregistrement des Services (Phase 3) ---
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile("appsettings.local.json", optional: true)
+            .Build();
+
+        var gitHubModelsOptions = configuration.GetSection("GitHubModels").Get<GitHubModelsOptions>() ?? new GitHubModelsOptions();
         // Service ML.NET pour l'inférence du modèle d'opinions
+        builder.Services.AddSingleton( gitHubModelsOptions );
         builder.Services.AddSingleton<MLNetInferenceService>();
 
         // Client MQTT → broker Mosquitto sur la Raspberry Pi du collègue
@@ -60,6 +68,9 @@ public static class MauiProgram
         });
         builder.Services.AddSingleton<ApiAuthenticationService>();
         builder.Services.AddSingleton<SimulationsApiService>();
+        builder.Services.AddSingleton(_ => new GitHubModelsChatService(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(60) },
+            gitHubModelsOptions));
 
         // --- Enregistrement des ViewModels ---
         // Singleton pour la simulation : on veut garder l'état des agents si on change de page
