@@ -50,6 +50,18 @@ public sealed class GitHubModelsChatService
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         System.Diagnostics.Debug.WriteLine($"[AI] Statut réponse: {(int)response.StatusCode} {response.StatusCode}.");
+        if (response.Headers.WwwAuthenticate is not null)
+        {
+            foreach (var header in response.Headers.WwwAuthenticate)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AI] WWW-Authenticate: {header.Scheme} {header.Parameter}".TrimEnd());
+            }
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            System.Diagnostics.Debug.WriteLine($"[AI] Erreur payload: {errorBody}");
+        }
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);

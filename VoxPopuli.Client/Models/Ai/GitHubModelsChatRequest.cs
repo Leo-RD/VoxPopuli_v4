@@ -8,6 +8,7 @@ public sealed class GitHubModelsChatRequest
 
     public float Temperature { get; set; } = 0.7f;
 
+    [System.Text.Json.Serialization.JsonPropertyName("max_tokens")]
     public int MaxTokens { get; set; } = 512;
 }
 
