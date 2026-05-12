@@ -7,6 +7,7 @@ using VoxPopuli.Client.Services;
 using VoxPopuli.Client.Services.Api;
 using VoxPopuli.Client.Services.Ai;
 using System.Linq;
+using System.Text.Json;
 
 namespace VoxPopuli.Client.ViewModels;
 
@@ -167,7 +168,54 @@ public partial class SimulationViewModel : BaseViewModel
     {
         LastRaspberryMessage = payload;
         System.Diagnostics.Debug.WriteLine($"📩 Message Raspberry reçu : {payload}");
-        // Étendre ici pour interpréter des commandes JSON envoyées par la Raspberry
+        if (string.IsNullOrWhiteSpace(payload))
+        {
+            System.Diagnostics.Debug.WriteLine("[MQTT] Message Raspberry vide, ignoré.");
+            return;
+        }
+
+        if (SelectedAgent is null)
+        {
+            System.Diagnostics.Debug.WriteLine("[MQTT] Aucun agent sélectionné, message ignoré.");
+            return;
+        }
+
+        _ = HandleRaspberryQuestionAsync(payload);
+    }
+
+    private async Task HandleRaspberryQuestionAsync(string question)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[MQTT] Question reçue: {question}");
+
+            var orientation = SelectedAgent?.PoliticalOrientation switch
+            {
+                PoliticalOrientation.Left => "Gauche",
+                PoliticalOrientation.Right => "Droite",
+                _ => "Centre"
+            };
+
+            if (SelectedAgent is null)
+            {
+                System.Diagnostics.Debug.WriteLine("[MQTT] Agent null au moment du traitement.");
+                return;
+            }
+
+            var response = await _gitHubModelsChatService.GetArgumentAsync(orientation, question);
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                response = "Aucune réponse générée.";
+            }
+
+            await _mqttService.TryPublishAiResponseAsync(SelectedAgent, response);
+            System.Diagnostics.Debug.WriteLine("[MQTT] Réponse IA envoyée à la Raspberry.");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MQTT] Erreur traitement question: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[MQTT] Stack: {ex.StackTrace}");
+        }
     }
 
     /// <summary>

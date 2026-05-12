@@ -9,8 +9,8 @@ namespace VoxPopuli.Client.Services;
 /// Client MQTT qui se connecte au broker Mosquitto sur la Raspberry Pi du collègue.
 ///
 /// Topics :
-///   vox/vers/ras  → ce que l'app ENVOIE  (snapshot des agents → Raspberry)
-///   vox/vers/app  → ce que l'app REÇOIT  (commandes/events → depuis la Raspberry)
+///   vox/vers/ras  → ce que l'app ENVOIE  (snapshot des agents / réponses IA → Raspberry)
+///   vox/vers/app  → ce que l'app REÇOIT  (commandes/events/questions → depuis la Raspberry)
 /// </summary>
 public class MqttAgentService : IAsyncDisposable
 {
@@ -34,6 +34,13 @@ public class MqttAgentService : IAsyncDisposable
         float[] OpinionVector,
         string Phrase,
         string DiscoursSummary
+    );
+
+    private record AiResponseDto(
+        string Name,
+        string Group,
+        bool IsHappy,
+        string Phrase
     );
 
     /// <summary>Déclenché à chaque message reçu de la Raspberry (payload brut).</summary>
@@ -105,6 +112,33 @@ public class MqttAgentService : IAsyncDisposable
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"⚠️ MQTT publish échoué : {ex.Message}");
+        }
+    }
+
+    public async Task TryPublishAiResponseAsync(
+        AgentModel agent,
+        string responseText,
+        CancellationToken ct = default)
+    {
+        if (!_client.IsConnected) return;
+        try
+        {
+            var payload = JsonSerializer.SerializeToUtf8Bytes(new AiResponseDto(
+                agent.Name,
+                agent.Group,
+                agent.IsHappy,
+                responseText));
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic(TopicToRaspberry)
+                .WithPayload(payload)
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .Build();
+            await _client.PublishAsync(message, ct);
+            System.Diagnostics.Debug.WriteLine($"📤 MQTT -> réponse IA envoyée pour {agent.Name}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"⚠️ MQTT publish réponse IA échoué : {ex.Message}");
         }
     }
 

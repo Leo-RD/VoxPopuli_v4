@@ -34,7 +34,7 @@ public sealed class GitHubModelsChatService
                 {
                     Role = "system",
                     Content = $"Tu es un citoyen avec l'orientation politique suivante : {orientationPolitique}. " +
-                              "Tu dois argumenter de façon cohérente avec cette idéologie, en français, de manière concise et claire."
+                              "Tu dois argumenter de façon cohérente avec cette idéologie, en français, très concis (2-4 phrases max)."
                 },
                 new GitHubModelsChatMessage
                 {
