@@ -544,7 +544,15 @@ public partial class SimulationViewModel : BaseViewModel
             PoliticalOrientation.Right => "Droite 🔵",
             _ => "Centre ⚪"
         };
-        var emotion = SelectedAgent.IsHappy ? "Content 😊" : "Pas content 😠";
+        var emotion = SelectedAgent.CurrentEmotion switch
+        {
+            EmotionalState.Happy => "Content 😊",
+            EmotionalState.Angry => "Pas content 😠",
+            EmotionalState.Neutral => "Neutre 😐",
+            EmotionalState.Agitated => "Agité 😵",
+            EmotionalState.Fearful => "Inquiet 😨",
+            _ => SelectedAgent.IsHappy ? "Content 😊" : "Pas content 😠"
+        };
         var speed = $"{SelectedAgent.MaxSpeed:F1} px/frame";
         var position = $"({SelectedAgent.X:F0}, {SelectedAgent.Y:F0})";
 
