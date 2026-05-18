@@ -69,6 +69,9 @@ public partial class SimulationPage : ContentPage
         IsAntialias = true
     };
 
+    private static readonly SKColor LeftOrientationColor = SKColor.Parse("#7A1E1E");
+    private static readonly SKColor RightOrientationColor = SKColor.Parse("#0B1F4D");
+
     public SimulationPage(SimulationViewModel viewModel)
     {
         InitializeComponent();
@@ -144,7 +147,7 @@ public partial class SimulationPage : ContentPage
             var agent = agents[i];
 
             // Mise à jour de la couleur depuis le modèle (pré-calculée)
-            _agentPaint.Color = agent.RenderColor;
+            _agentPaint.Color = GetAgentColor(agent);
 
             // Dessin du cercle (Agent) avec scaling indépendant X/Y pour remplir le canvas
             float agentX = agent.X * scaleX;
@@ -162,6 +165,21 @@ public partial class SimulationPage : ContentPage
 
         // 4. Dessiner le compteur FPS en haut à droite
         DrawFpsCounter(canvas, info.Width);
+    }
+
+    private SKColor GetAgentColor(Models.AgentModel agent)
+    {
+        if (_viewModel.SelectedAgentColorFilter == "Orientation")
+        {
+            return agent.PoliticalOrientation switch
+            {
+                Models.PoliticalOrientation.Left => LeftOrientationColor,
+                Models.PoliticalOrientation.Right => RightOrientationColor,
+                _ => agent.RenderColor
+            };
+        }
+
+        return agent.RenderColor;
     }
 
     /// <summary>

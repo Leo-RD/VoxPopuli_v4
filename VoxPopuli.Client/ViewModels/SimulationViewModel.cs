@@ -105,6 +105,11 @@ public partial class SimulationViewModel : BaseViewModel
     [ObservableProperty]
     private string selectedAgentInfo = "";
 
+    public IReadOnlyList<string> AgentColorFilters { get; } = new[] { "Émotion", "Orientation" };
+
+    [ObservableProperty]
+    private string selectedAgentColorFilter = "Émotion";
+
     // ===== MODE DISCOURS =====
     [ObservableProperty]
     private bool isSpeechMode = false;
@@ -159,6 +164,11 @@ public partial class SimulationViewModel : BaseViewModel
         Task.Run(async () => await _mqttService.ConnectAsync());
         InitializePopulation(500);
         System.Diagnostics.Debug.WriteLine($"📊 SimulationViewModel: {Population.Count} agents créés");
+    }
+
+    partial void OnSelectedAgentColorFilterChanged(string value)
+    {
+        System.Diagnostics.Debug.WriteLine($"🎨 Filtre de couleur agents: {value}");
     }
 
     /// <summary>

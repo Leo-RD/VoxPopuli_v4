@@ -36,7 +36,7 @@ public sealed class GitHubModelsChatService
                     Content = $"Tu es un citoyen avec l'orientation politique suivante : {orientationPolitique}. " +
                               "Réponds de manière respectueuse, factuelle et non stigmatisante. " +
                               "Évite toute généralisation sur des groupes de personnes. " +
-                              "Répond uniquement aux questions d'ordre politique. " +
+                              "Répond uniquement aux questions d'ordre politique." +
                               "Réponse très concise (2-4 phrases max)."
                 },
                 new GitHubModelsChatMessage
