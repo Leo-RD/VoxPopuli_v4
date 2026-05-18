@@ -300,10 +300,19 @@ public partial class SimulationViewModel : BaseViewModel
         int happyCount = 0;
         int unhappyCount = 0;
 
+        bool isNeutralPhrase = Math.Abs(phraseScore) < PoliticalPhraseAnalyzer.NeutralThreshold;
+        System.Diagnostics.Debug.WriteLine($"   Neutre: {isNeutralPhrase}");
+
         foreach (var agent in Population)
         {
+            if (isNeutralPhrase)
+            {
+                ApplyNeutralState(agent);
+                continue;
+            }
+
             // Déterminer si l'agent est content
-            bool isHappy = _phraseAnalyzer.IsAgentHappy(agent.PoliticalOrientation, phrase);
+            bool isHappy = _phraseAnalyzer.IsAgentHappy(agent.PoliticalOrientation, phraseScore);
             agent.IsHappy = isHappy;
 
             if (isHappy)
@@ -324,7 +333,16 @@ public partial class SimulationViewModel : BaseViewModel
             }
         }
 
-        System.Diagnostics.Debug.WriteLine($"   Résultat: {happyCount} contents (verts), {unhappyCount} pas contents (rouges)");
+        if (isNeutralPhrase)
+        {
+            happyCount = 0;
+            unhappyCount = 0;
+            System.Diagnostics.Debug.WriteLine("   Résultat: phrase neutre -> tous les agents neutres");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"   Résultat: {happyCount} contents (verts), {unhappyCount} pas contents (rouges)");
+        }
     }
 
     /// <summary>
@@ -1033,12 +1051,9 @@ public partial class SimulationViewModel : BaseViewModel
                 (float)random.NextDouble(),
                 (float)random.NextDouble()
             };
-            agent.CurrentEmotion = EmotionalState.Neutral;
-            agent.IsHappy = true;
+            ApplyNeutralState(agent);
             agent.IsInfluenced = false;
             agent.LastInfluenceTime = null;
-            agent.RenderColor = SKColors.Green;
-            agent.MaxSpeed = HappyAgentSpeed;
 
             // Les Easter Eggs conservent leur orientation et groupe fixes
             var egg = Array.Find(_easterEggs, e => e.Name == agent.Name);
@@ -1068,5 +1083,13 @@ public partial class SimulationViewModel : BaseViewModel
 
         System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents ({_agentPool.Count} dans le pool)");
         System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount} ({leftPercentage}%), Droite: {count - leftCount} ({100 - leftPercentage}%)");
+    }
+
+    private void ApplyNeutralState(AgentModel agent)
+    {
+        agent.CurrentEmotion = EmotionalState.Neutral;
+        agent.IsHappy = false;
+        agent.RenderColor = SKColors.Gray;
+        agent.MaxSpeed = HappyAgentSpeed;
     }
 }

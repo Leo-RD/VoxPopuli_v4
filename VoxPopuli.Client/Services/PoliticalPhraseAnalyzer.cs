@@ -60,7 +60,7 @@ public class PoliticalPhraseAnalyzer
     };
 
     // Seuil pour considérer une phrase comme neutre
-    private const float NeutralThreshold = 0.15f;
+    public const float NeutralThreshold = 0.15f;
 
     /// <summary>
     /// Analyse une phrase politique et retourne un score :
@@ -162,15 +162,13 @@ public class PoliticalPhraseAnalyzer
     /// Détermine si un agent est content selon son orientation et la phrase.
     /// Gestion améliorée des phrases neutres.
     /// </summary>
-    public bool IsAgentHappy(PoliticalOrientation orientation, string phrase)
+    public bool IsAgentHappy(PoliticalOrientation orientation, float phraseScore)
     {
-        float phraseScore = AnalyzePhrase(phrase);
-
-        // Si la phrase est neutre (score proche de 0), garder l'état actuel (content par défaut)
+        // Si la phrase est neutre (score proche de 0), laisser la logique d'appel gérer l'état neutre
         if (Math.Abs(phraseScore) < NeutralThreshold)
         {
-            System.Diagnostics.Debug.WriteLine($"   [NEUTRE] Score {phraseScore:F2} < seuil {NeutralThreshold} → Agents restent contents");
-            return true; // Phrase neutre = tout le monde reste content
+            System.Diagnostics.Debug.WriteLine($"   [NEUTRE] Score {phraseScore:F2} < seuil {NeutralThreshold}");
+            return false;
         }
 
         // Si la phrase est de gauche (score négatif) et l'agent est de gauche → content
