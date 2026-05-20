@@ -424,15 +424,11 @@
                                                 Style="{StaticResource GlassButtonSuccess}"
                                                 Command="{Binding AnalyzeSpeechCommand}"/>
 
-                                         <Button Text="☁️ Envoyer la simulation à l'API"
-                                                 Style="{StaticResource GlassButton}"
-                                                 Command="{Binding SaveSimulationToApiCommand}"/>
-
-                                         <Label Text="{Binding ApiSyncStatus}"
-                                                FontFamily="AvantGardeBook"
-                                                FontSize="12"
-                                                TextColor="#BFD8E3"
-                                                LineBreakMode="WordWrap"/>
+                                        <Label Text="{Binding ApiSyncStatus}"
+                                               FontFamily="AvantGardeBook"
+                                               FontSize="12"
+                                               TextColor="#BFD8E3"
+                                               LineBreakMode="WordWrap"/>
 
                                         <!-- Résultats du discours -->
                                         <Border IsVisible="{Binding HasSpeechResult}"
@@ -459,15 +455,11 @@
                                 <Label Text="⚡ Actions" 
                                        Style="{StaticResource GlassSubtitleLabel}"/>
 
-                                 <Border Style="{StaticResource GlassInfoPanel}">
-                                     <Label Text="{Binding ApiSyncStatus}"
-                                            Style="{StaticResource GlassBodyLabel}"
-                                            LineBreakMode="WordWrap"/>
-                                 </Border>
-
-                                 <Button Text="☁️ Test envoi API" 
-                                         Style="{StaticResource GlassButton}"
-                                         Command="{Binding SaveSimulationToApiCommand}"/>
+                                <Border Style="{StaticResource GlassInfoPanel}">
+                                    <Label Text="{Binding ApiSyncStatus}"
+                                           Style="{StaticResource GlassBodyLabel}"
+                                           LineBreakMode="WordWrap"/>
+                                </Border>
                                 
                                 <Button Text="⚙️ Configuration de la Simulation" 
                                         Style="{StaticResource GlassButton}"
@@ -481,164 +473,6 @@
                                         Style="{StaticResource GlassButtonWarning}"
                                         Command="{Binding TriggerEventCommand}"/>
                             </VerticalStackLayout>
-
-                            <!-- 📊 STATS SECTION (GLASS CARDS) -->
-                            <VerticalStackLayout Spacing="12">
-                                <Label Text="📊 Statistiques" 
-                                       Style="{StaticResource GlassSubtitleLabel}"/>
-
-                                <!-- Groupe A Stats -->
-                                <Border Style="{StaticResource GlassStatsCard}">
-                                    <Border.Stroke>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#60667EEA" Offset="0.0"/>
-                                            <GradientStop Color="#40667EEA" Offset="1.0"/>
-                                        </LinearGradientBrush>
-                                    </Border.Stroke>
-                                    <VerticalStackLayout Spacing="8">
-                                        <HorizontalStackLayout Spacing="8">
-                                            <Border BackgroundColor="#667EEA" 
-                                                    WidthRequest="8" HeightRequest="8" 
-                                                    VerticalOptions="Center">
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="4"/>
-                                                </Border.StrokeShape>
-                                                <Border.Shadow>
-                                                    <Shadow Brush="#667EEA" Offset="0,0" Radius="4" Opacity="0.6"/>
-                                                </Border.Shadow>
-                                            </Border>
-                                            <Label Text="Groupe A" 
-                                                   FontFamily="AvantGardeDemi"
-                                                   FontSize="14" 
-                                                   TextColor="#667EEA"/>
-                                        </HorizontalStackLayout>
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <Label Grid.Column="0" 
-                                                   Text="✓ Accord" 
-                                                   Style="{StaticResource GlassBodyLabel}"/>
-                                            <Label Grid.Column="1" 
-                                                   Text="65%" 
-                                                   FontFamily="AvantGardeBold" 
-                                                   FontSize="14" 
-                                                   TextColor="{StaticResource GlassText}"/>
-                                        </Grid>
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <Label Grid.Column="0" 
-                                                   Text="✗ Rejet" 
-                                                   Style="{StaticResource GlassBodyLabel}"/>
-                                            <Label Grid.Column="1" 
-                                                   Text="35%" 
-                                                   FontFamily="AvantGardeBold" 
-                                                   FontSize="14" 
-                                                   TextColor="{StaticResource GlassText}"/>
-                                        </Grid>
-                                    </VerticalStackLayout>
-                                </Border>
-
-                                <!-- Groupe B Stats -->
-                                <Border Style="{StaticResource GlassStatsCard}">
-                                    <Border.Stroke>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#60764BA2" Offset="0.0"/>
-                                            <GradientStop Color="#40764BA2" Offset="1.0"/>
-                                        </LinearGradientBrush>
-                                    </Border.Stroke>
-                                    <VerticalStackLayout Spacing="8">
-                                        <HorizontalStackLayout Spacing="8">
-                                            <Border BackgroundColor="#764BA2" 
-                                                    WidthRequest="8" HeightRequest="8" 
-                                                    VerticalOptions="Center">
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="4"/>
-                                                </Border.StrokeShape>
-                                                <Border.Shadow>
-                                                    <Shadow Brush="#764BA2" Offset="0,0" Radius="4" Opacity="0.6"/>
-                                                </Border.Shadow>
-                                            </Border>
-                                            <Label Text="Groupe B" 
-                                                   FontFamily="AvantGardeDemi"
-                                                   FontSize="14" 
-                                                   TextColor="#764BA2"/>
-                                        </HorizontalStackLayout>
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <Label Grid.Column="0" 
-                                                   Text="✓ Accord" 
-                                                   Style="{StaticResource GlassBodyLabel}"/>
-                                            <Label Grid.Column="1" 
-                                                   Text="42%" 
-                                                   FontFamily="AvantGardeBold" 
-                                                   FontSize="14" 
-                                                   TextColor="{StaticResource GlassText}"/>
-                                        </Grid>
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <Label Grid.Column="0" 
-                                                   Text="✗ Rejet" 
-                                                   Style="{StaticResource GlassBodyLabel}"/>
-                                            <Label Grid.Column="1" 
-                                                   Text="58%" 
-                                                   FontFamily="AvantGardeBold" 
-                                                   FontSize="14" 
-                                                   TextColor="{StaticResource GlassText}"/>
-                                        </Grid>
-                                    </VerticalStackLayout>
-                                </Border>
-                            </VerticalStackLayout>
-
-                            <!-- 💌 MESSAGES (GLASS INFO PANEL) -->
-                            <Border Style="{StaticResource GlassInfoPanel}">
-                                <VerticalStackLayout Spacing="12">
-                                    <Label Text="💌 Messages" 
-                                           Style="{StaticResource GlassSubtitleLabel}"/>
-                                    
-                                    <VerticalStackLayout Spacing="10">
-                                        <HorizontalStackLayout Spacing="10">
-                                            <Border BackgroundColor="#667EEA" 
-                                                    WidthRequest="32" HeightRequest="32" 
-                                                    VerticalOptions="Start">
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="16"/>
-                                                </Border.StrokeShape>
-                                                <Border.Shadow>
-                                                    <Shadow Brush="#667EEA" Offset="0,2" Radius="8" Opacity="0.3"/>
-                                                </Border.Shadow>
-                                                <Label Text="A" 
-                                                       TextColor="White" 
-                                                       FontFamily="AvantGardeBold" 
-                                                       FontSize="16"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"/>
-                                            </Border>
-                                            <Label Text="Message politique pour..."
-                                                   Style="{StaticResource GlassBodyLabel}"
-                                                   VerticalOptions="Center"
-                                                   LineBreakMode="WordWrap"/>
-                                        </HorizontalStackLayout>
-
-                                        <HorizontalStackLayout Spacing="10">
-                                            <Border BackgroundColor="#764BA2" 
-                                                    WidthRequest="32" HeightRequest="32" 
-                                                    VerticalOptions="Start">
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="16"/>
-                                                </Border.StrokeShape>
-                                                <Border.Shadow>
-                                                    <Shadow Brush="#764BA2" Offset="0,2" Radius="8" Opacity="0.3"/>
-                                                </Border.Shadow>
-                                                <Label Text="B" 
-                                                       TextColor="White" 
-                                                       FontFamily="AvantGardeBold" 
-                                                       FontSize="16"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"/>
-                                            </Border>
-                                            <Label Text="Alternative message..."
-                                                   Style="{StaticResource GlassBodyLabel}"
-                                                   VerticalOptions="Center"
-                                                   LineBreakMode="WordWrap"/>
-                                        </HorizontalStackLayout>
-                                    </VerticalStackLayout>
-                                </VerticalStackLayout>
-                            </Border>
 
                         </VerticalStackLayout>
                     </ScrollView>

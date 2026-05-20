@@ -353,6 +353,24 @@ public partial class SimulationViewModel : BaseViewModel
         {
             System.Diagnostics.Debug.WriteLine($"   Résultat: {happyCount} contents (verts), {unhappyCount} pas contents (rouges)");
         }
+
+        var phraseResult = new SpeechAnalysisResult
+        {
+            TotalSentences = 1,
+            LeftSentences = phraseScore < -PoliticalPhraseAnalyzer.NeutralThreshold ? 1 : 0,
+            RightSentences = phraseScore > PoliticalPhraseAnalyzer.NeutralThreshold ? 1 : 0,
+            NeutralSentences = Math.Abs(phraseScore) < PoliticalPhraseAnalyzer.NeutralThreshold ? 1 : 0,
+            AverageScore = phraseScore,
+            GlobalOrientation = phraseScore switch
+            {
+                < -PoliticalPhraseAnalyzer.NeutralThreshold => "Gauche",
+                > PoliticalPhraseAnalyzer.NeutralThreshold => "Droite",
+                _ => "Neutre"
+            }
+        };
+
+        System.Diagnostics.Debug.WriteLine("🌐 [API] Envoi automatique de la simulation après analyse de la phrase.");
+        _ = SaveSimulationToApiInternalAsync(phraseResult, happyCount, unhappyCount);
     }
 
     /// <summary>
@@ -440,6 +458,7 @@ public partial class SimulationViewModel : BaseViewModel
 
         HasSpeechResult = true;
 
+        System.Diagnostics.Debug.WriteLine("🌐 [API] Envoi automatique de la simulation après analyse du discours.");
         await SaveSimulationToApiInternalAsync(result, happyCount, unhappyCount);
 
         System.Diagnostics.Debug.WriteLine($"✅ Discours analysé : {result.GlobalOrientation}, {happyCount} contents, {unhappyCount} pas contents");
