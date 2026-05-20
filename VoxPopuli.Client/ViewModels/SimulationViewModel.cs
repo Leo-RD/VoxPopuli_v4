@@ -231,9 +231,9 @@ public partial class SimulationViewModel : BaseViewModel
     /// <summary>
     /// Réinitialise la simulation avec un nombre d'agents et une répartition gauche/droite.
     /// </summary>
-    public void ResetSimulation(int count, int leftPercentage = 50)
+    public void ResetSimulation(int count, int leftPercentage = 50, bool isDynamicMode = false)
     {
-        InitializePopulation(count, leftPercentage);
+        InitializePopulation(count, leftPercentage, isDynamicMode);
     }
 
     [RelayCommand]
@@ -1039,7 +1039,7 @@ public partial class SimulationViewModel : BaseViewModel
         }
     }
 
-    private void InitializePopulation(int count, int leftPercentage = 50)
+    private void InitializePopulation(int count, int leftPercentage = 50, bool isDynamicMode = false)
     {
         var random = new Random();
         AgentCount = count;
@@ -1048,6 +1048,26 @@ public partial class SimulationViewModel : BaseViewModel
         SimulationTime = "00:00";
 
         int leftCount = (int)Math.Round(count * leftPercentage / 100.0);
+        int rightCount = count - leftCount;
+        int centerCount = 0;
+
+        if (isDynamicMode)
+        {
+            double poidsGauche = random.NextDouble();
+            double poidsDroite = random.NextDouble();
+            double poidsNeutre = random.NextDouble();
+            double total = poidsGauche + poidsDroite + poidsNeutre;
+
+            double probaGauche = poidsGauche / total;
+            double probaDroite = poidsDroite / total;
+            double probaNeutre = poidsNeutre / total;
+
+            leftCount = (int)Math.Round(count * probaGauche);
+            rightCount = (int)Math.Round(count * probaDroite);
+            centerCount = Math.Max(0, count - leftCount - rightCount);
+
+            System.Diagnostics.Debug.WriteLine($"🎲 Mode dynamique activé: Gauche={probaGauche:P1}, Droite={probaDroite:P1}, Neutre={probaNeutre:P1}");
+        }
 
         // Injecter les Easter Eggs en tête de pool (une seule fois)
         foreach (var egg in _easterEggs)
@@ -1103,7 +1123,7 @@ public partial class SimulationViewModel : BaseViewModel
             {
                 agent.PoliticalOrientation = i < leftCount
                     ? PoliticalOrientation.Left
-                    : i >= count - leftCount
+                    : i < leftCount + rightCount
                         ? PoliticalOrientation.Right
                         : PoliticalOrientation.Center;
                 agent.Group = agent.PoliticalOrientation switch
@@ -1119,7 +1139,14 @@ public partial class SimulationViewModel : BaseViewModel
         Population = Population.OrderBy(_ => random.Next()).ToList();
 
         System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents ({_agentPool.Count} dans le pool)");
-        System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount} ({leftPercentage}%), Droite: {count - leftCount} ({100 - leftPercentage}%)");
+        if (isDynamicMode)
+        {
+            System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount}, Droite: {rightCount}, Neutre: {centerCount}");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount} ({leftPercentage}%), Droite: {count - leftCount} ({100 - leftPercentage}%)");
+        }
     }
 
     private void ApplyNeutralState(AgentModel agent)

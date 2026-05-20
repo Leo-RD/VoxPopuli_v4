@@ -24,6 +24,12 @@ public partial class StartPageViewModel : BaseViewModel
     [ObservableProperty]
     private string splitDisplay = "50% ◀ Gauche  |  Droite ▶ 50%";
 
+    [ObservableProperty]
+    private bool dynamicModeEnabled;
+
+    [ObservableProperty]
+    private string dynamicModeButtonText = "🎲 Mode dynamique : OFF";
+
     partial void OnSelectedAgentCountChanged(int value)
     {
         AgentCountDisplay = $"{value} agents";
@@ -33,6 +39,14 @@ public partial class StartPageViewModel : BaseViewModel
     partial void OnLeftPercentageChanged(int value)
     {
         UpdateSplitDisplay(SelectedAgentCount, value);
+    }
+
+    partial void OnDynamicModeEnabledChanged(bool value)
+    {
+        DynamicModeButtonText = value
+            ? "🎲 Mode dynamique : ON"
+            : "🎲 Mode dynamique : OFF";
+        System.Diagnostics.Debug.WriteLine($"⚙️ Mode dynamique {(value ? "activé" : "désactivé")}");
     }
 
     private void UpdateSplitDisplay(int total, int leftPct)
@@ -49,12 +63,20 @@ public partial class StartPageViewModel : BaseViewModel
     [RelayCommand]
     private async Task StartSimulation()
     {
+        System.Diagnostics.Debug.WriteLine($"🚀 Démarrage simulation: Agents={SelectedAgentCount}, Gauche={LeftPercentage}%, ModeDynamique={DynamicModeEnabled}");
         var parameters = new Dictionary<string, object>
         {
             { "AgentCount", SelectedAgentCount },
-            { "LeftPercentage", LeftPercentage }
+            { "LeftPercentage", LeftPercentage },
+            { "IsDynamicMode", DynamicModeEnabled }
         };
 
         await Shell.Current.GoToAsync("//SimulationPage", parameters);
+    }
+
+    [RelayCommand]
+    private void ToggleDynamicMode()
+    {
+        DynamicModeEnabled = !DynamicModeEnabled;
     }
 }
