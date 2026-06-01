@@ -7,12 +7,14 @@ namespace VoxPopuli.Client.Views;
 [QueryProperty(nameof(AgentCount), "AgentCount")]
 [QueryProperty(nameof(LeftPercentage), "LeftPercentage")]
 [QueryProperty(nameof(IsDynamicMode), "IsDynamicMode")]
+[QueryProperty(nameof(IsNeighborhoodMode), "IsNeighborhoodMode")]
 public partial class SimulationPage : ContentPage
 {
     private readonly SimulationViewModel _viewModel;
     private int _agentCount = 500;
     private int _leftPercentage = 50;
     private bool _isDynamicMode;
+    private bool _isNeighborhoodMode;
 
     public int AgentCount
     {
@@ -44,11 +46,21 @@ public partial class SimulationPage : ContentPage
         }
     }
 
+    public bool IsNeighborhoodMode
+    {
+        get => _isNeighborhoodMode;
+        set
+        {
+            _isNeighborhoodMode = value;
+            ApplySimulationParameters();
+        }
+    }
+
     private void ApplySimulationParameters()
     {
         if (_viewModel != null)
         {
-            _viewModel.ResetSimulation(_agentCount, _leftPercentage, _isDynamicMode);
+            _viewModel.ResetSimulation(_agentCount, _leftPercentage, _isDynamicMode, _isNeighborhoodMode);
         }
     }
 

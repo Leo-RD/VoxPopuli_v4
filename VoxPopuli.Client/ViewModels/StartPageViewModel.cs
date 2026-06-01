@@ -30,6 +30,30 @@ public partial class StartPageViewModel : BaseViewModel
     [ObservableProperty]
     private string dynamicModeButtonText = "🎲 Mode dynamique : OFF";
 
+    private bool _quartiersModeEnabled;
+    private string _quartiersModeButtonText = "🏘️ Mode quartiers : OFF";
+
+    public bool QuartiersModeEnabled
+    {
+        get => _quartiersModeEnabled;
+        set
+        {
+            if (SetProperty(ref _quartiersModeEnabled, value))
+            {
+                QuartiersModeButtonText = value
+                    ? "🏘️ Mode quartiers : ON"
+                    : "🏘️ Mode quartiers : OFF";
+                System.Diagnostics.Debug.WriteLine($"⚙️ Mode quartiers {(value ? "activé" : "désactivé")}");
+            }
+        }
+    }
+
+    public string QuartiersModeButtonText
+    {
+        get => _quartiersModeButtonText;
+        set => SetProperty(ref _quartiersModeButtonText, value);
+    }
+
     partial void OnSelectedAgentCountChanged(int value)
     {
         AgentCountDisplay = $"{value} agents";
@@ -63,12 +87,13 @@ public partial class StartPageViewModel : BaseViewModel
     [RelayCommand]
     private async Task StartSimulation()
     {
-        System.Diagnostics.Debug.WriteLine($"🚀 Démarrage simulation: Agents={SelectedAgentCount}, Gauche={LeftPercentage}%, ModeDynamique={DynamicModeEnabled}");
+        System.Diagnostics.Debug.WriteLine($"🚀 Démarrage simulation: Agents={SelectedAgentCount}, Gauche={LeftPercentage}%, ModeDynamique={DynamicModeEnabled}, ModeQuartiers={QuartiersModeEnabled}");
         var parameters = new Dictionary<string, object>
         {
             { "AgentCount", SelectedAgentCount },
             { "LeftPercentage", LeftPercentage },
-            { "IsDynamicMode", DynamicModeEnabled }
+            { "IsDynamicMode", DynamicModeEnabled },
+            { "IsNeighborhoodMode", QuartiersModeEnabled }
         };
 
         await Shell.Current.GoToAsync("//SimulationPage", parameters);
@@ -78,5 +103,11 @@ public partial class StartPageViewModel : BaseViewModel
     private void ToggleDynamicMode()
     {
         DynamicModeEnabled = !DynamicModeEnabled;
+    }
+
+    [RelayCommand]
+    private void ToggleNeighborhoodMode()
+    {
+        QuartiersModeEnabled = !QuartiersModeEnabled;
     }
 }

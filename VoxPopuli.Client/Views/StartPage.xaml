@@ -223,6 +223,16 @@
                         Margin="0,10,0,0"
                         Command="{Binding ToggleDynamicModeCommand}"/>
 
+                <!-- Mode quartiers -->
+                <Button Text="{Binding QuartiersModeButtonText}"
+                        BackgroundColor="#2C3E50"
+                        TextColor="White"
+                        FontFamily="AvantGardeDemi"
+                        FontSize="14"
+                        Padding="16,12"
+                        Margin="0,10,0,0"
+                        Command="{Binding ToggleNeighborhoodModeCommand}"/>
+
             </VerticalStackLayout>
         </Border>
 

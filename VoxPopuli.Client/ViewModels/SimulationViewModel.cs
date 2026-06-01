@@ -231,9 +231,9 @@ public partial class SimulationViewModel : BaseViewModel
     /// <summary>
     /// Réinitialise la simulation avec un nombre d'agents et une répartition gauche/droite.
     /// </summary>
-    public void ResetSimulation(int count, int leftPercentage = 50, bool isDynamicMode = false)
+    public void ResetSimulation(int count, int leftPercentage = 50, bool isDynamicMode = false, bool isNeighborhoodMode = false)
     {
-        InitializePopulation(count, leftPercentage, isDynamicMode);
+        InitializePopulation(count, leftPercentage, isDynamicMode, isNeighborhoodMode);
     }
 
     [RelayCommand]
@@ -1039,7 +1039,7 @@ public partial class SimulationViewModel : BaseViewModel
         }
     }
 
-    private void InitializePopulation(int count, int leftPercentage = 50, bool isDynamicMode = false)
+    private void InitializePopulation(int count, int leftPercentage = 50, bool isDynamicMode = false, bool isNeighborhoodMode = false)
     {
         var random = new Random();
         AgentCount = count;
@@ -1050,8 +1050,17 @@ public partial class SimulationViewModel : BaseViewModel
         int leftCount = (int)Math.Round(count * leftPercentage / 100.0);
         int rightCount = count - leftCount;
         int centerCount = 0;
+        bool useNeighborhoodMode = isNeighborhoodMode;
+        int leftNeighborhoodCount = 0;
+        int rightNeighborhoodCount = 0;
+        int centerNeighborhoodCount = 0;
+        float leftHqX = 0f;
+        float leftHqY = 0f;
+        float rightHqX = 0f;
+        float rightHqY = 0f;
+        float maxDistance = MathF.Sqrt(WorldWidth * WorldWidth + WorldHeight * WorldHeight);
 
-        if (isDynamicMode)
+        if (isDynamicMode && !useNeighborhoodMode)
         {
             double poidsGauche = random.NextDouble();
             double poidsDroite = random.NextDouble();
@@ -1067,6 +1076,16 @@ public partial class SimulationViewModel : BaseViewModel
             centerCount = Math.Max(0, count - leftCount - rightCount);
 
             System.Diagnostics.Debug.WriteLine($"🎲 Mode dynamique activé: Gauche={probaGauche:P1}, Droite={probaDroite:P1}, Neutre={probaNeutre:P1}");
+        }
+
+        if (useNeighborhoodMode)
+        {
+            leftHqX = (float)random.NextDouble() * WorldWidth;
+            leftHqY = (float)random.NextDouble() * WorldHeight;
+            rightHqX = (float)random.NextDouble() * WorldWidth;
+            rightHqY = (float)random.NextDouble() * WorldHeight;
+
+            System.Diagnostics.Debug.WriteLine($"🏘️ Mode quartiers activé: QG Gauche=({leftHqX:F0},{leftHqY:F0}), QG Droite=({rightHqX:F0},{rightHqY:F0})");
         }
 
         // Injecter les Easter Eggs en tête de pool (une seule fois)
@@ -1121,11 +1140,51 @@ public partial class SimulationViewModel : BaseViewModel
             }
             else
             {
-                agent.PoliticalOrientation = i < leftCount
-                    ? PoliticalOrientation.Left
-                    : i < leftCount + rightCount
-                        ? PoliticalOrientation.Right
-                        : PoliticalOrientation.Center;
+                if (useNeighborhoodMode)
+                {
+                    float dxLeft = agent.X - leftHqX;
+                    float dyLeft = agent.Y - leftHqY;
+                    float dxRight = agent.X - rightHqX;
+                    float dyRight = agent.Y - rightHqY;
+
+                    float distLeft = MathF.Sqrt(dxLeft * dxLeft + dyLeft * dyLeft);
+                    float distRight = MathF.Sqrt(dxRight * dxRight + dyRight * dyRight);
+
+                    double closenessLeft = 1 - (double)Math.Clamp(distLeft / maxDistance, 0f, 1f);
+                    double closenessRight = 1 - (double)Math.Clamp(distRight / maxDistance, 0f, 1f);
+                    double neutralWeight = Math.Clamp(1 - ((closenessLeft + closenessRight) / 2), 0, 1);
+
+                    double weightLeft = 0.2 + 0.6 * closenessLeft;
+                    double weightRight = 0.2 + 0.6 * closenessRight;
+                    double weightNeutral = 0.2 + 0.6 * neutralWeight;
+
+                    double totalWeight = weightLeft + weightRight + weightNeutral;
+                    double probaLeft = weightLeft / totalWeight;
+                    double probaRight = weightRight / totalWeight;
+
+                    double roll = random.NextDouble();
+                    agent.PoliticalOrientation = roll < probaLeft
+                        ? PoliticalOrientation.Left
+                        : roll < probaLeft + probaRight
+                            ? PoliticalOrientation.Right
+                            : PoliticalOrientation.Center;
+
+                    if (agent.PoliticalOrientation == PoliticalOrientation.Left)
+                        leftNeighborhoodCount++;
+                    else if (agent.PoliticalOrientation == PoliticalOrientation.Right)
+                        rightNeighborhoodCount++;
+                    else
+                        centerNeighborhoodCount++;
+                }
+                else
+                {
+                    agent.PoliticalOrientation = i < leftCount
+                        ? PoliticalOrientation.Left
+                        : i < leftCount + rightCount
+                            ? PoliticalOrientation.Right
+                            : PoliticalOrientation.Center;
+                }
+
                 agent.Group = agent.PoliticalOrientation switch
                 {
                     PoliticalOrientation.Left => "A",
@@ -1139,7 +1198,11 @@ public partial class SimulationViewModel : BaseViewModel
         Population = Population.OrderBy(_ => random.Next()).ToList();
 
         System.Diagnostics.Debug.WriteLine($"📊 Population initialisée : {count} agents ({_agentPool.Count} dans le pool)");
-        if (isDynamicMode)
+        if (useNeighborhoodMode)
+        {
+            System.Diagnostics.Debug.WriteLine($"   - Quartiers: Gauche={leftNeighborhoodCount}, Droite={rightNeighborhoodCount}, Neutre={centerNeighborhoodCount}");
+        }
+        else if (isDynamicMode)
         {
             System.Diagnostics.Debug.WriteLine($"   - Gauche: {leftCount}, Droite: {rightCount}, Neutre: {centerCount}");
         }
